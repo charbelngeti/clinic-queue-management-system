@@ -1,0 +1,47 @@
+{
+  "name": "clinic-queue-management-system",
+  "version": "0.1.0",
+  "description": "Clinic Queue & Appointment Management System (university project)",
+  "main": "src/server.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/server.js",
+    "dev": "node --watch --env-file-if-exists=.env src/server.js",
+    "css:build": "tailwindcss -i public/css/input.css -o public/css/app.css --minify",
+    "css:watch": "tailwindcss -i public/css/input.css -o public/css/app.css --watch",
+    "db:init": "node --env-file=.env scripts/init-db.js",
+    "seed": "node --env-file=.env scripts/seed.js",
+    "test": "node --env-file-if-exists=.env --test --test-concurrency=1 tests/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charbelngeti/clinic-queue-management-system.git"
+  },
+  "author": "Group project",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/charbelngeti/clinic-queue-management-system/issues"
+  },
+  "homepage": "https://github.com/charbelngeti/clinic-queue-management-system#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.4",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.12.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.5",
+    "supertest": "^7.3.2",
+    "tailwindcss": "^4.3.5"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22.9"
+  },
+  "private": true
+}

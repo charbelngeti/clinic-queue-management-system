@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign in · CareQueue Clinic</title>
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body class="h-full">
+  <div class="grid min-h-full lg:grid-cols-2">
+    <!-- Brand panel -->
+    <section class="relative hidden overflow-hidden bg-gradient-to-br from-brand-700 via-brand-800 to-brand-950 p-12 text-white lg:flex lg:flex-col lg:justify-between">
+      <div class="flex items-center gap-3">
+        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25">
+          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.2-9.4C1.6 8.3 3.7 5 7 5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.3 0 5.4 3.3 4.2 6.6C19.5 16.4 12 21 12 21Z"/><path d="M7.5 12h2.5l1.2-2.5 1.8 5 1.3-2.5h2.2"/></svg>
+        </span>
+        <span class="text-lg font-semibold tracking-tight">CareQueue Clinic</span>
+      </div>
+      <div class="max-w-md">
+        <h1 class="text-4xl leading-tight font-bold tracking-tight">Every patient, every department, one calm queue.</h1>
+        <p class="mt-4 text-brand-100">Appointments, triage, consultations, laboratory and pharmacy, all coordinated in a single system.</p>
+        <ul class="mt-8 space-y-3 text-sm text-brand-50">
+          <li class="flex items-center gap-3"><span class="h-1.5 w-1.5 rounded-full bg-brand-300"></span>Conflict-free appointment booking</li>
+          <li class="flex items-center gap-3"><span class="h-1.5 w-1.5 rounded-full bg-brand-300"></span>Priority-based queues for every department</li>
+          <li class="flex items-center gap-3"><span class="h-1.5 w-1.5 rounded-full bg-brand-300"></span>Role-based access to patient information</li>
+        </ul>
+      </div>
+      <p class="text-xs text-brand-200">University project · Synthetic demonstration data only</p>
+      <div class="pointer-events-none absolute -right-24 -bottom-24 h-96 w-96 rounded-full bg-brand-400/20 blur-3xl"></div>
+    </section>
+
+    <!-- Sign-in form -->
+    <main class="flex items-center justify-center px-6 py-12">
+      <div class="w-full max-w-sm">
+        <div class="mb-8 flex items-center gap-3 lg:hidden">
+          <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white">
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.2-9.4C1.6 8.3 3.7 5 7 5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.3 0 5.4 3.3 4.2 6.6C19.5 16.4 12 21 12 21Z"/><path d="M7.5 12h2.5l1.2-2.5 1.8 5 1.3-2.5h2.2"/></svg>
+          </span>
+          <span class="text-lg font-semibold">CareQueue Clinic</span>
+        </div>
+        <h2 class="text-2xl font-bold tracking-tight text-slate-900">Sign in</h2>
+        <p class="mt-1 text-sm text-slate-500">Staff and registered patients. Patient accounts are created at reception.</p>
+
+        <div id="login-alert" class="mt-6 hidden rounded-lg border px-4 py-3 text-sm" role="alert"></div>
+
+        <form id="login-form" class="mt-6 space-y-5" novalidate>
+          <div data-field>
+            <label class="label" for="email">Email address</label>
+            <input class="input" id="email" name="email" type="email" autocomplete="username" required placeholder="name@clinic.test" />
+          </div>
+          <div data-field>
+            <label class="label" for="password">Password</label>
+            <input class="input" id="password" name="password" type="password" autocomplete="current-password" required />
+          </div>
+          <button id="login-btn" class="btn btn-primary btn-lg w-full" type="submit">Sign in</button>
+        </form>
+
+        <div class="mt-8 rounded-lg border border-dashed border-slate-300 bg-white p-4 text-xs text-slate-500">
+          <p class="font-semibold text-slate-600">Looking for today's queue?</p>
+          <p class="mt-1">Open the public <a class="font-semibold text-brand-700 hover:underline" href="/display">"Who's Next" display</a>.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="/js/login.js"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Project Blueprint — Clinic Queue & Appointment Management System
 
-**Status:** DRAFT v0.2. The group's answers to Q1–Q12 are incorporated (see §14). Still awaiting final go-ahead to start coding.
+**Status:** v0.3, approved 16 Nov 2026. Implementation in progress (see PROJECT_STATUS.md).
 **Date:** 16 Nov 2026 (Monday) **Submission deadline:** 20 Nov 2026 (Friday). That leaves **4 working days**.
 
 ### How to read this document
@@ -520,7 +520,7 @@ MongoDB **multi-document transactions only work on a replica set**, and MongoDB 
 
 **`counters`**: atomic sequences: `{ _id: "patientNo:2026" | "ticket:2026-11-16", seq }`, incremented with `findOneAndUpdate({$inc}, {upsert:true})`.
 
-**`conversations`** (messaging): `{ participants: [userId] | includesReception: true, subject, patientId?, appointmentId?, lastMessageAt, createdBy }`. Index `{participants:1, lastMessageAt:-1}`.
+**`conversations`** (messaging, as implemented): `{ counterpartId, counterpartRole, subject, patientId?, createdBy, lastMessageAt, lastMessagePreview, unreadForReception, unreadForCounterpart }`. Reception acts as one shared desk; every conversation is between the desk and one staff member or patient. Index `{counterpartId:1, lastMessageAt:-1}`.
 
 **`messages`**: `{ conversationId, senderId, body, readBy: [userId], createdAt }`. Index `{conversationId:1, createdAt:1}`. Referenced rather than embedded in the conversation, because threads are unbounded.
 
@@ -688,20 +688,20 @@ It belongs to the **Queue Management** module and is the heart of the system: it
 
 ## 11. Academic Documentation Structure [R]
 
-**The report is limited to 10 pages in Word.** Proposed page budget:
+**Report: about 15 pages (maximum 20) in Word; appendices excluded.** Page budget (≈15):
 
 | Section | Pages |
 |---|---|
-| Title + introduction/problem/objectives | 1 |
-| Methodology | 1 |
-| Requirements (key FR/NFR/DR tables with IDs) | 2 |
-| Architecture + database design + data model diagram | 1.5 |
-| Use-case, sequence and communication diagrams | 2 |
-| CASE tools | 0.5 |
-| Code snippet & error analysis | 1 |
+| Title + introduction/problem/objectives | 1.5 |
+| Methodology | 1.5 |
+| Requirements (key FR/NFR/DR tables with IDs) | 3 |
+| Architecture + database design + data model diagram | 2.5 |
+| Use-case, sequence and communication diagrams | 3 |
+| CASE tools | 1 |
+| Code snippet & error analysis | 1.5 |
 | Testing + conclusion + references | 1 |
 
-The full requirements specification and the remaining diagrams go in appendices, **if the lecturer allows appendices outside the 10-page limit** (to confirm). If not, the tables are trimmed to the essential (M) requirements.
+The full requirements specification, traceability matrix and remaining diagrams go in the appendices (confirmed: appendices do not count toward the limit).
 
 The original (pre-limit) structure is kept below for reference:
 
@@ -776,15 +776,15 @@ These are out of scope unless you say otherwise:
 ## 14. Decisions (answered 16 Nov 2026)
 | # | Decision |
 |---|---|
-| Q1 | 20 Nov is the deadline for code, report **and** presentation. The group has 10 members. |
+| Q1 | 20 Nov is the deadline for code, report **and** presentation. The group has **9** members. Presentation: ~30 min talk, 10 min demo, up to 20 min questions. |
 | Q2 | Admin and Receptionist are separate roles. Admin manages the system but does not alter operational/clinical records. Receptionist is the front desk and communication hub (adds module MSG). |
 | Q3 | The Doctor vs Clinician model is approved. |
 | Q4 | Patients are registered **only at reception**. FR-PAT-05 is removed. Reception creates portal logins (FR-PAT-06 → M). |
 | Q5 | Pharmacy stock is in scope. |
-| Q6 | The group describes "interaction diagrams" as stick figures with arrows to ovals. **That is the UML use-case diagram notation.** Plan: deliver the use-case diagram in that style. Also deliver communication diagrams, labelled as UML interaction diagrams, unless the lecturer confirms they are not needed. **Still to confirm.** |
+| Q6 | Confirmed: interaction diagrams are UML diagrams showing message flow between objects. We deliver **sequence diagrams and communication diagrams**, plus the use-case diagram. |
 | Q7 | MongoDB setup: Claude to specify exactly what is needed (see PROJECT_STATUS.md). |
 | Q8 | Libraries in §4.2 approved. |
-| Q9 | Report: **≤ 10 pages in Word (.docx)**. Slides: **PowerPoint (.pptx)**. §11 must be compressed. |
+| Q9 | Report: Word (.docx), **about 15 pages, at most 20**; appendices do not count. Slides: **PowerPoint (.pptx)**. |
 | Q10 | Cite the Kenya Data Protection Act, 2019. |
 | Q11 | AI declaration is not required. Keep `CLAUDE-ASSISTANCE.md` in the repo root as a short log of AI-assisted work. |
 | Q12 | Triage is optional. Reception chooses triage or straight to consultation at check-in. |

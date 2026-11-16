@@ -2,7 +2,7 @@
 
 **Status:** DRAFT v0.1 (outline only). The PowerPoint will be generated after approval.
 **Format:** PowerPoint (.pptx), 16:9.
-**Assumed length:** ~25 min talk + ~5 min live demo + Q&A. **Confirm the time limit.**
+**Time limit (confirmed):** ~30 min talk + 10 min live demo + up to 20 min questions.
 
 **Tags used on slides:**
 - **[NOW]** content can be written today from the approved design.
@@ -19,15 +19,14 @@
 | Charbel Ngeti | 221441 | 1, 25, 27 | Opening, live demo, Q&A moderation |
 | Adelight Naino | 220702 | 2, 3 | Background & problem |
 | Abigael Wambui | 193891 | 4, 5 | Objectives & proposed solution |
-| Nathaniel Jaden | 178626 ⚠️ | 6, 7 | Methodology (guideline 1) |
 | Alvin Otanga | 220267 | 8, 9, 10 | Requirements (guideline 2) |
 | Ajani M'maitsi | 186452 | 11, 12, 13 | Architecture & database |
-| Nathaniel Lado | 178626 ⚠️ | 14, 15, 16 | UML diagrams (guideline 3) |
-| Evans Kima | 212539 | 17, 23 | CASE tools (guideline 4), testing |
-| Faith Wanjira | 220506 | 18, 19, 20 | Implemented modules & screenshots |
+| Nathaniel Lado | 178626 | 6, 7, 14 | Methodology (guideline 1), use-case diagram |
+| Evans Kima | 212539 | 15, 16, 17 | Sequence & interaction diagrams (guideline 3), CASE tools (guideline 4) |
+| Faith Wanjira | 220506 | 18, 19, 20, 23 | Implemented modules, screenshots, testing |
 | Matthew Mwachi | 189603 | 21, 22, 24 | Code snippet & errors (guideline 5), conclusion |
 
-⚠️ Nathaniel Jaden and Nathaniel Lado have the same admission number (178626). Please confirm the correct numbers before the title slide is produced.
+The group has 9 members (Nathaniel Jaden / Nathaniel Lado was one person registered twice).
 
 The demo is assigned to Charbel as the repository owner. Swap it to whoever is most comfortable driving the app live.
 
@@ -85,7 +84,7 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 
 ## SECTION B — Methodology (Guideline 1)
 
-### Slide 6 — Methodology: Incremental Model  ·  Nathaniel Jaden  ·  1:15  ·  [NOW]
+### Slide 6 — Methodology: Incremental Model  ·  Nathaniel Lado  ·  1:15  ·  [NOW]
 - **Content:**
   - **What:** the system is built and delivered in small, fully tested increments.
   - **Stages:** Requirements & architecture → [Design → Build → Integrate → Test] × increments → System test → Delivery.
@@ -93,7 +92,7 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 - **Visuals:** Increment "staircase" diagram, each step labelled with its modules.
 - **Speaker notes:** "Requirements and architecture were agreed once at the start. Then each increment went through its own mini-cycle and was added to the working system. After every increment we had something that ran and could be demonstrated."
 
-### Slide 7 — Why Incremental? Justification  ·  Nathaniel Jaden  ·  1:30  ·  [NOW]
+### Slide 7 — Why Incremental? Justification  ·  Nathaniel Lado  ·  1:30  ·  [NOW]
 - **Content:**
   - **Why it fits:** short deadline; the clinic workflow is a natural dependency chain; requirements were stable.
   - **Advantages:** working software early, risk handled early, easy progress tracking.
@@ -188,13 +187,13 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
   - Explain generalisation: Doctor inherits all Clinician use cases and adds booked appointments and unrestricted prescribing.
   - Explain `<<include>>` using "Call next patient".
 
-### Slide 15 — Sequence Diagram: Lab Request Round Trip  ·  Nathaniel Lado  ·  1:30  ·  [BUILD]
+### Slide 15 — Sequence Diagram: Lab Request Round Trip  ·  Evans Kima  ·  1:30  ·  [BUILD]
 - **Content:** Clinician → UI → API → LabService → MongoDB → Lab Tech → results → patient returns to the same clinician's queue.
 - **Visuals:** Sequence diagram. Highlight the transaction block.
 - **Speaker notes:** Read the diagram top-to-bottom: time flows downward and each arrow is a message. Point out the transaction fragment. Mention that the other sequence diagrams are in the report.
 
-### Slide 16 — Interaction Diagram  ·  Nathaniel Lado  ·  1:15  ·  [BUILD]
-- **Content and visuals:** Depend on the clarification below. The default is a **communication diagram** for "Call next patient": objects linked with numbered messages.
+### Slide 16 — Interaction (Communication) Diagram  ·  Evans Kima  ·  1:15  ·  [BUILD]
+- **Content and visuals:** Confirmed: interaction diagrams = UML diagrams of message flow between objects. We show a **communication diagram** for "Call next patient": objects linked with numbered messages.
 - **Speaker notes:** "A communication diagram shows the same interaction as a sequence diagram, but focuses on *which objects are linked* rather than on timing."
 
 ---
@@ -267,7 +266,7 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 
 ## SECTION H — Testing, Demo, Close
 
-### Slide 23 — Testing & Results  ·  Evans Kima  ·  1:15  ·  [BUILD]
+### Slide 23 — Testing & Results  ·  Faith Wanjira  ·  1:15  ·  [BUILD]
 - **Content:**
   - Test levels: unit, API (automated), manual end-to-end across roles.
   - **Actual** results: tests passed / total. Key cases include double-booking → rejected, wrong role → 403, over-dispensing → rejected.
@@ -282,7 +281,7 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 - **Visuals:** Two columns: Achieved / Future.
 - **Speaker notes:** Tie each achievement back to a problem from slide 3.
 
-### Slide 25 — Live Demonstration  ·  Charbel Ngeti  ·  ~5:00  ·  [BUILD]
+### Slide 25 — Live Demonstration  ·  Charbel Ngeti  ·  ~10:00  ·  [BUILD]
 - **Content:** Demo script on the slide:
   1. Reception checks in a booked patient → ticket shown on "Who's Next".
   2. Nurse calls the patient and records vitals.
@@ -313,13 +312,13 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 | 2 | How do you prevent two doctors calling the same patient? | An atomic `findOneAndUpdate` that only matches a patient whose status is still "waiting". Only one update can succeed. | Matthew |
 | 3 | How do you prevent double-booking? | A unique partial index on doctor + start time for active appointments. The database itself rejects the second booking, even if both happen at the same moment. | Ajani |
 | 4 | What if the server crashes in the middle of dispensing? | Dispensing runs in a transaction: stock decrement, prescription update and visit completion either all commit or none do. | Ajani |
-| 5 | Why the Incremental model and not Agile/Scrum? | Our requirements were stable and our timeframe very short. Scrum's sprints and ceremonies don't fit. Incremental still gives working software early. | Nathaniel J. |
+| 5 | Why the Incremental model and not Agile/Scrum? | Our requirements were stable and our timeframe very short. Scrum's sprints and ceremonies don't fit. Incremental still gives working software early. | Nathaniel |
 | 6 | Difference between functional and non-functional requirements? | Functional = what the system does (book an appointment). Non-functional = how well it does it (response time, security). Domain = constraints from healthcare itself. | Alvin |
 | 7 | Why can't the admin read clinical notes? | Need-to-know principle under the Kenya Data Protection Act 2019. Admin manages the system, not patient care. | Alvin |
-| 8 | How is a Doctor different from a Clinician? | The same consultation module. Doctors also have bookable schedules and unrestricted prescribing. Clinicians prescribe only from an approved list. Shown as generalisation in the use-case diagram. | Nathaniel L. |
-| 9 | Difference between a sequence and a communication diagram? | Both are interaction diagrams. Sequence emphasises time order. Communication emphasises the links between objects, with numbered messages. | Nathaniel L. |
+| 8 | How is a Doctor different from a Clinician? | The same consultation module. Doctors also have bookable schedules and unrestricted prescribing. Clinicians prescribe only from an approved list. Shown as generalisation in the use-case diagram. | Nathaniel |
+| 9 | Difference between a sequence and a communication diagram? | Both are interaction diagrams. Sequence emphasises time order. Communication emphasises the links between objects, with numbered messages. | Evans |
 | 10 | How are passwords stored? | bcrypt hashes with a salt. The plain password is never stored. The login session is an httpOnly cookie that JavaScript can't read. | Evans |
-| 11 | How do the diagrams match the code? | Diagrams were drawn after each increment from the implemented code, and a traceability matrix links requirements → endpoints → tests. | Nathaniel L. |
+| 11 | How do the diagrams match the code? | Diagrams were drawn after each increment from the implemented code, and a traceability matrix links requirements → endpoints → tests. | Nathaniel |
 | 12 | How did you test it? | Automated API tests for rules and permissions, plus manual end-to-end tests across all roles. | Evans |
 | 13 | Is the live queue real-time? | Near-real-time: screens poll every 5 seconds. WebSockets are recommended future work. | Ajani |
 | 14 | How would this scale to many branches? | Add a `branchId` to documents and indexes, a branch-scoped RBAC, and deploy on a larger MongoDB cluster. | Matthew |

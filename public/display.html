@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Who's Next · CareQueue Clinic</title>
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body class="h-full bg-slate-950 text-white">
+  <div class="flex min-h-full flex-col">
+    <header class="flex items-center justify-between border-b border-white/10 px-8 py-5">
+      <div class="flex items-center gap-4">
+        <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-500">
+          <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.2-9.4C1.6 8.3 3.7 5 7 5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.3 0 5.4 3.3 4.2 6.6C19.5 16.4 12 21 12 21Z"/><path d="M7.5 12h2.5l1.2-2.5 1.8 5 1.3-2.5h2.2"/></svg>
+        </span>
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight">Who's Next in Line</h1>
+          <p class="text-sm text-slate-400">Please watch for your ticket number and proceed to the room shown.</p>
+        </div>
+      </div>
+      <div class="text-right">
+        <p id="clock" class="text-4xl font-bold tabular-nums"></p>
+        <p id="date" class="text-sm text-slate-400"></p>
+      </div>
+    </header>
+    <div id="announce" class="hidden bg-brand-500 px-8 py-4 text-center text-2xl font-bold" role="status" aria-live="assertive"></div>
+    <main id="board" class="grid flex-1 gap-6 p-8 md:grid-cols-2 xl:grid-cols-4"></main>
+    <footer class="flex items-center justify-between border-t border-white/10 px-8 py-3 text-xs text-slate-500">
+      <span>For your privacy, only ticket numbers are shown.</span>
+      <span id="status">Connecting…</span>
+    </footer>
+  </div>
+  <script type="module" src="/js/display.js"></script>
+</body>
+</html>

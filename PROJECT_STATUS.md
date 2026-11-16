@@ -1,86 +1,56 @@
 # PROJECT STATUS
 
-**Deadline:** Fri 20 Nov 2026, for code, report (≤ 10 pages, Word) and presentation (PowerPoint)
-**Last updated:** Mon 16 Nov 2026
-**Current phase:** Requirements & architecture. Blueprint v0.2 has the group's decisions incorporated. Coding has **not started**; it is waiting on the go-ahead and MongoDB setup.
+**Deadline:** Fri 20 Nov 2026, for the code, the report (Word, ~15 pages, max 20, appendices excluded) and the presentation (PowerPoint; ~30 min talk + 10 min demo + 20 min Q&A)
+**Last updated:** Mon 16 Nov 2026 (afternoon)
+**Current phase:** Implementation. Increments 1–2 are done and verified; Increment 3 is next.
 
-## Group
-
-| Name           | Adm. No. |
-| -------------- | -------- |
-| Charbel Ngeti  | 221441   |
-| Adelight Naino | 220702   |
-| Abigael Wambui | 193891   |
-| Alvin Otanga   | 220267   |
-| Ajani M'maitsi | 186452   |
-| Nathaniel Lado | 178626   |
-| Evans Kima     | 212539   |
-| Faith Wanjira  | 220506   |
-| Matthew Mwachi | 189603   |
-
-## MongoDB setup needed (one group member, ~10 minutes)
-
-1. Create a free account at https://cloud.mongodb.com.
-2. **Create a cluster → M0 (Free)**. Choose the nearest region offered, and name it e.g. `clinic-cluster`.
-3. **Security → Database Access → Add user.** Use username `clinic_app`, an auto-generated password, and the role _Read and write to any database_. Save the password somewhere private.
-4. **Security → Network Access → Add IP.** Add your current IP. Other members who will run the app add theirs too. For the demo you may temporarily allow `0.0.0.0/0`: acceptable here because all data is synthetic, but remove it afterwards.
-5. **Connect → Drivers.** Copy the `mongodb+srv://...` connection string.
-6. In the project root, create a file named `.env` (git-ignored) containing:
-   ```
-   MONGODB_URI=mongodb+srv://clinic_app:<password>@<cluster-host>/clinic_qms?retryWrites=true&w=majority
-   ```
-   **Do not paste the password into chat or commit it.** Just tell Claude "the .env is ready".
-7. (Recommended, for CASE-tool evidence) Install **MongoDB Compass** and connect with the same string.
+## Group (9 members)
+| Name | Adm. No. |
+|---|---|
+| Charbel Ngeti | 221441 |
+| Adelight Naino | 220702 |
+| Abigael Wambui | 193891 |
+| Alvin Otanga | 220267 |
+| Ajani M'maitsi | 186452 |
+| Nathaniel Lado | 178626 |
+| Evans Kima | 212539 |
+| Faith Wanjira | 220506 |
+| Matthew Mwachi | 189603 |
 
 ## Workstream A: Application Development
 
-### Completed
+| Increment | Scope | Status |
+|---|---|---|
+| 1 Foundation | Scaffold, Tailwind, Mongoose models (13 collections), `$jsonSchema` validators, indexes, seed data, auth (JWT cookie), RBAC, app shell, admin staff accounts | ✅ Done, tested |
+| 2 Front desk | Patients (register, search, duplicate warning, edit, portal accounts), doctor schedules (admin), appointments (slot booking, cancel, no-show), check-in (triage or straight to consultation), queue engine (call next / skip / recall / re-queue / move between stages), queue board, "Who's Next" display, nurse triage (vitals, flags, priority, send to consultation) | ✅ Done; API tested; browser-checked: dashboard, check-in, queue board, triage, display |
+| 3 Clinical flow | Consultation (doctor/clinician), lab requests & results, prescriptions, pharmacy dispensing + stock | ⏳ Next |
+| 4 Portal, messaging & insight | Patient portal, messaging, role dashboards, reports, audit log viewer | Not started |
+| 5 Hardening | Full multi-role E2E test, bug fixes | Not started |
 
-- Repository initialised.
+### Automated tests
+`npm test`: 27 API tests, **all passing** (16 Nov). They cover auth, RBAC (403s), NoSQL injection, duplicate patients, double-booking including a simultaneous race, patient IDOR, cancel rules, duplicate queue entries, concurrent "call next", priority ordering, vitals validation and flags, and privacy of the board and display.
 
-### Outstanding
-
-| Increment                     | Scope                                                                                                                      | Status      |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| 1 Foundation                  | Scaffold, Tailwind, models, indexes, seed, auth, RBAC, UI shell                                                            | Not started |
-| 2 Front desk                  | Patients + portal accounts, availability, appointments, check-in (triage or consultation), queue, Who's Next, nurse triage | Not started |
-| 3 Clinical flow               | Consultation, lab, prescriptions, pharmacy + stock                                                                         | Not started |
-| 4 Portal, messaging & insight | Patient portal, messaging, dashboards, reports, audit                                                                      | Not started |
-| 5 Hardening                   | Automated + multi-role E2E tests, bug fixes                                                                                | Not started |
-
-### Known bugs
-
-- None (no code yet).
+### Known issues
+- None open. Fixed during development:
+  - Tailwind v4 `@apply` of a custom class.
+  - Mongoose auto-creating collections before validators were set (Atlas `readWrite` role can't run `collMod`).
+  - Global `sanitizeFilter` would have broken legitimate `$in` queries.
+  - BOM added to `package.json` by PowerShell.
+  - Triage header not refreshing after vitals were saved.
 
 ## Workstream B: Academic Deliverables
-
 ### Completed
-
-- Project blueprint v0.2: `docs/BLUEPRINT.md`
-- Presentation outline draft: `docs/presentation/SLIDE_OUTLINE.md` (awaiting review)
+- Blueprint v0.3 (`docs/BLUEPRINT.md`)
+- Slide outline v0.2 (`docs/presentation/SLIDE_OUTLINE.md`): 9 presenters, timings, Q&A. **Awaiting group review.**
 
 ### Outstanding
-
-- Slide outline approval → PowerPoint generation
-- Use-case diagram
-- Sequence diagrams
-- Communication diagrams (Q6 confirmation)
-- Data model diagram
-- Architecture diagram
-- CASE tools evidence
-- Code snippet & error analysis
-- Testing results
-- Word report (≤ 10 pages)
-
-## Open items
-
-- Go-ahead to start coding.
-- Lecturer's meaning of "interaction diagram" (see BLUEPRINT §14, Q6).
-- Presentation time limit.
-- Whether appendices count toward the 10-page limit.
-- Correct admission numbers for the two Nathaniels.
+- PlantUML diagrams (use-case, sequence, communication, state, data model, architecture)
+- CASE tools evidence (screenshots: Atlas/Compass collections and indexes, GitHub history, test output)
+- Code snippet & error analysis write-up
+- Word report
+- PowerPoint (after outline approval and once screenshots exist)
 
 ## Next priorities
-
-1. Go-ahead + `.env` ready → start Increment 1.
-2. Review the slide outline.
+1. Increment 3: consultation → lab → pharmacy.
+2. Increment 4: patient portal, messaging, dashboards, reports.
+3. Diagrams drawn from the implemented code.
