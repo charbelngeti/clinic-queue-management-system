@@ -1,0 +1,129 @@
+@startuml use-case
+' Use-case diagram — CareQueue Clinic (Clinic Queue & Appointment Management System)
+' Reflects the implemented system (see src/services/rbac.js for the permission map).
+!pragma layout smetana
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+  BackgroundColor #EFFCF9
+  BorderColor #088577
+}
+skinparam shadowing false
+
+actor "Administrator" as Admin
+actor "Receptionist" as Rec
+actor "Patient" as Pat
+actor "Nurse" as Nurse
+actor "Clinician" as Clin
+actor "Doctor" as Doc
+actor "Lab Technician" as Lab
+actor "Pharmacist" as Pharm
+actor "Public display\n(no login)" as Display
+
+Doc -|> Clin : <<generalisation>>
+
+rectangle "CareQueue Clinic System" {
+  usecase "Log in / change password" as UC_Login
+  usecase "Send & receive messages\n(via reception desk)" as UC_Msg
+
+  ' administration
+  usecase "Manage staff accounts" as UC_Staff
+  usecase "Manage doctor schedules" as UC_Sched
+  usecase "Manage medication formulary" as UC_Form
+  usecase "View reports" as UC_Reports
+  usecase "View activity log" as UC_Audit
+
+  ' front desk
+  usecase "Register / update patient" as UC_RegPat
+  usecase "Check for duplicate patient" as UC_Dup
+  usecase "Create portal access" as UC_Portal
+  usecase "Book appointment" as UC_Book
+  usecase "Choose free time slot" as UC_Slot
+  usecase "Cancel appointment" as UC_Cancel
+  usecase "Mark no-show" as UC_NoShow
+  usecase "Check in patient /\nregister walk-in" as UC_CheckIn
+  usecase "Monitor queues" as UC_Monitor
+  usecase "View queue position" as UC_MyQueue
+  usecase "View Who's Next board" as UC_Board
+
+  ' shared queue handling
+  usecase "Call next patient" as UC_Call
+
+  ' nursing
+  usecase "Record vital signs\n& set priority" as UC_Vitals
+  usecase "Send to consultation" as UC_Send
+
+  ' consultation (shared by clinician + doctor)
+  usecase "Record consultation" as UC_Consult
+  usecase "Request lab tests" as UC_LabReq
+  usecase "Prescribe medication" as UC_Rx
+  usecase "Check allergies" as UC_Allergy
+  usecase "Refer to doctor" as UC_Refer
+  usecase "Complete visit" as UC_Complete
+  usecase "View booked appointments" as UC_MyAppts
+
+  ' lab & pharmacy
+  usecase "Enter & release\nlab results" as UC_Results
+  usecase "Dispense medication" as UC_Dispense
+  usecase "Receive stock" as UC_Stock
+}
+
+Admin --> UC_Staff
+Admin --> UC_Sched
+Admin --> UC_Form
+Admin --> UC_Reports
+Admin --> UC_Audit
+Admin --> UC_Monitor
+
+Rec --> UC_RegPat
+Rec --> UC_Portal
+Rec --> UC_Book
+Rec --> UC_Cancel
+Rec --> UC_NoShow
+Rec --> UC_CheckIn
+Rec --> UC_Monitor
+Rec --> UC_Msg
+
+Pat --> UC_Book
+Pat --> UC_Cancel
+Pat --> UC_MyQueue
+Pat --> UC_Msg
+
+Nurse --> UC_Call
+Nurse --> UC_Vitals
+Nurse --> UC_Send
+Nurse --> UC_Msg
+
+Clin --> UC_Call
+Clin --> UC_Consult
+Clin --> UC_LabReq
+Clin --> UC_Rx
+Clin --> UC_Refer
+Clin --> UC_Complete
+Clin --> UC_Msg
+Doc --> UC_MyAppts
+
+Lab --> UC_Call
+Lab --> UC_Results
+Lab --> UC_Msg
+
+Pharm --> UC_Call
+Pharm --> UC_Dispense
+Pharm --> UC_Stock
+Pharm --> UC_Msg
+
+Display --> UC_Board
+
+UC_RegPat ..> UC_Dup : <<include>>
+UC_Book ..> UC_Slot : <<include>>
+UC_Rx ..> UC_Allergy : <<include>>
+UC_Dispense ..> UC_Allergy : <<include>>
+UC_Vitals ..> UC_Call : <<include>>
+UC_Consult ..> UC_Call : <<include>>
+UC_Results ..> UC_Call : <<include>>
+UC_Dispense ..> UC_Call : <<include>>
+UC_Portal ..> UC_RegPat : <<extend>>
+
+note "All actors use Log in / change password.\nDoctor inherits every Clinician use case and\nadditionally has booked appointments and\nunrestricted prescribing." as N1
+@enduml

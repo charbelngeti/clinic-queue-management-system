@@ -22,7 +22,7 @@ const FLAG_FIELDS = {
 };
 
 /** Read-only vitals summary with abnormal values highlighted (FR-NUR-05). */
-export function vitalsPanel(triage) {
+export function vitalsPanel(triage, { compact = false } = {}) {
   if (!triage?.recordedAt) return html`<p class="text-sm text-slate-500">No vital signs recorded for this visit.</p>`;
   const v = triage.vitals || {};
   const flagged = new Set((triage.flags || []).flatMap((f) => FLAG_FIELDS[f] || []));
@@ -34,7 +34,7 @@ export function vitalsPanel(triage) {
     ${triage.flags?.length
       ? html`<div class="flex flex-wrap gap-1.5">${triage.flags.map((f) => html`<span class="badge badge-red">${icon('alert', 'h-3 w-3')}${FLAG_LABELS[f] || f}</span>`)}</div>`
       : html`<p class="flex items-center gap-1.5 text-sm text-emerald-700">${icon('checkCircle', 'h-4 w-4')}All recorded values within normal ranges</p>`}
-    <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+    <div class="${compact ? 'grid grid-cols-2 gap-2' : 'grid grid-cols-2 gap-2 sm:grid-cols-4'}">
       ${tile('temperature', 'Temperature', v.temperature, '°C')}
       ${tile('bp', 'Blood pressure', v.systolic ? `${v.systolic}/${v.diastolic ?? '–'}` : null, 'mmHg')}
       ${tile('pulse', 'Pulse', v.pulse, 'bpm')}

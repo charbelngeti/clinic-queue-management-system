@@ -1,0 +1,59 @@
+@startuml state-visit
+' State machine of a visit (queue entry) — src/utils/transitions.js (QUEUE_TRANSITIONS, STAGE_TRANSITIONS)
+skinparam shadowing false
+title Visit / queue entry lifecycle
+
+[*] --> Waiting : check-in\n(triage or consultation)
+state "Waiting" as Waiting
+state "Called" as Called : shown on "Who's Next"
+state "In service" as InService
+state "Skipped" as Skipped : did not respond
+
+Waiting --> Called : call next\n(atomic, priority order)
+Called --> Called : call again
+Called --> InService : patient arrived /\nvitals recorded
+Called --> Skipped : not here
+Skipped --> Waiting : re-queue
+Called --> Waiting : sent to next department
+InService --> Waiting : sent to next department\n(triage→consultation, consultation→lab,\nlab→consultation, consultation→pharmacy,\nreferral)
+Called --> Completed : discharge / dispensed
+InService --> Completed : discharge / dispensed
+Waiting --> Cancelled : reception cancels\n(patient left)
+Skipped --> Cancelled
+Called --> Cancelled
+InService --> Cancelled
+Completed --> [*]
+Cancelled --> [*]
+@enduml
+
+@startuml state-appointment
+' Appointment lifecycle — src/utils/transitions.js (APPOINTMENT_TRANSITIONS)
+skinparam shadowing false
+title Appointment lifecycle
+
+[*] --> Scheduled : booked (reception / portal)
+Scheduled --> CheckedIn : check-in (today)
+Scheduled --> Cancelled : cancel\n(patient: ≥ 2 h before)
+Scheduled --> NoShow : start time passed
+CheckedIn --> Completed : visit completed
+CheckedIn --> Cancelled : patient left
+state "Checked in" as CheckedIn
+state "No-show" as NoShow
+Completed --> [*]
+Cancelled --> [*]
+NoShow --> [*]
+@enduml
+
+@startuml state-lab
+' Lab request lifecycle — src/utils/transitions.js (LAB_TRANSITIONS)
+skinparam shadowing false
+title Lab request lifecycle
+[*] --> Requested : clinician requests tests
+Requested --> SampleCollected : sample collected
+SampleCollected --> InProgress : analysis started
+SampleCollected --> Completed : results released
+InProgress --> Completed : results released
+state "Sample collected" as SampleCollected
+state "In progress" as InProgress
+Completed --> [*] : patient returns to\nthe requesting clinician
+@enduml

@@ -150,3 +150,6 @@ vite.config.ts.timestamp-*
 
 # Office lock files
 ~$*
+
+# Local tools (downloaded, not committed)
+tools/

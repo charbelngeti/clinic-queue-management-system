@@ -25,7 +25,7 @@
 | 2 Front desk | Patients (register, search, duplicate warning, edit, portal accounts), doctor schedules (admin), appointments (slot booking, cancel, no-show), check-in (triage or straight to consultation), queue engine (call next / skip / recall / re-queue / move between stages), queue board, "Who's Next" display, nurse triage (vitals, flags, priority, send to consultation) | ✅ Done; API tested; browser-checked: dashboard, check-in, queue board, triage, display |
 | 3 Clinical flow | Consultation workspace (doctor + clinician: note, vitals, history, results), lab requests → lab workspace (sample, results, release → back to the same clinician), prescriptions with allergy warning and clinician restrictions, referral, discharge, pharmacy dispensing with transactional stock control, medications & stock (receive stock; admin formulary), lab/prescription daily records | ✅ Done; API tested; full walk-through checked in a browser |
 | 4 Portal, messaging & insight | Patient portal (live ticket and position, journey steps, book, cancel ≥ 2 h before, appointment history), messaging with reception as shared desk (unread badges), admin reports (visits per day, wait/service time per department, no-show rate, lab turnaround, top medications), activity (audit) log viewer, personal stats strip in every department workspace, seed with 14 days of synthetic history | ✅ Done; API tested; checked in a browser (reports, portal, messages) |
-| 5 Hardening | Full multi-role E2E test, bug fixes | ⏳ Next |
+| 5 Hardening | Browser walkthrough of every role (screenshots taken); fixed: booking slot race condition, lab table overflow, cramped consultation layout, fading TV display highlight, misleading dashboard label | 🔶 In progress. **Not verified:** phone-width layout (browser window could not be resized) |
 
 ### Automated tests
 `npm test`: 46 API tests, **all passing** (16 Nov). They cover the patient portal (own queue position, staff-only endpoints blocked, 2-hour cancellation rule), messaging rules (shared reception desk, no cross-reading, admin excluded), reports and audit access, the clinical round trip (consultation → lab → same clinician → pharmacy), allergy acknowledgement, clinician prescribing limits, referral, the dispensing transaction rolling back on insufficient stock, over-dispensing, auth, RBAC (403s), NoSQL injection, duplicate patients, double-booking including a simultaneous race, patient IDOR, cancel rules, duplicate queue entries, concurrent "call next", priority ordering, vitals validation and flags, and privacy of the board and display.
@@ -42,14 +42,17 @@
   - Lab test lookup returning at most 25 rows broke one test (test fixed).
   - Report no-show hint used the wrong denominator.
   - Stale dev-server processes kept serving old code on port 3000 (stopped).
+  - **Race condition in booking dialog:** changing doctor then date quickly fired two slot requests; the older response arrived last and showed slots for the wrong day. Fixed by ignoring stale responses (good real example for the error-analysis section).
+  - Lab results table overflowed the page horizontally (CSS grid min-width); fixed with min-w-0.
 
 ## Workstream B: Academic Deliverables
 ### Completed
+- UML diagrams (PlantUML sources in `docs/diagrams/`, PNGs in `docs/diagrams/rendered/`, `npm run diagrams`): use-case; 5 sequence diagrams (registration & booking, check-in & queue, triage, consultation & lab, prescription & dispensing); 2 communication diagrams (call next, dispense); state machines (visit, appointment, lab request); data model; architecture
+- 18 application screenshots in `docs/screenshots/`
 - Blueprint v0.3 (`docs/BLUEPRINT.md`)
 - Slide outline v0.2 (`docs/presentation/SLIDE_OUTLINE.md`): 9 presenters, timings, Q&A. **Awaiting group review.**
 
 ### Outstanding
-- PlantUML diagrams (use-case, sequence, communication, state, data model, architecture)
 - CASE tools evidence (screenshots: Atlas/Compass collections and indexes, GitHub history, test output)
 - Code snippet & error analysis write-up
 - Word report

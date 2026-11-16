@@ -55,7 +55,7 @@ export async function render(root, { user }) {
       mount(
         $('#stats', root),
         html`${stat("Today's appointments", appointments.length, 'calendar', 'bg-sky-50 text-sky-600', `${by('scheduled')} still expected`)}
-          ${stat('Checked in today', by('checked_in') + by('completed'), 'check', 'bg-violet-50 text-violet-600', `${by('no_show')} no-show · ${by('cancelled')} cancelled`)}
+          ${stat('Appointments checked in', by('checked_in') + by('completed'), 'check', 'bg-violet-50 text-violet-600', `${by('no_show')} no-show · ${by('cancelled')} cancelled`)}
           ${stat('Patients in clinic now', active.length, 'users', 'bg-brand-50 text-brand-600', `${active.filter((v) => v.queueStatus === 'waiting').length} waiting`)}
           ${stat('Visits completed', board.completedToday, 'checkCircle', 'bg-emerald-50 text-emerald-600', 'today')}`,
       );

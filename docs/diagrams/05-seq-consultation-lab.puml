@@ -1,0 +1,52 @@
+@startuml seq-consultation-lab
+' Sequence: clinician consultation and laboratory round trip (FR-CON-02..05, FR-LAB-01..04)
+' Matches: /api/consultations/visit/:visitId/*, /api/lab/requests/:id/*
+autonumber
+skinparam shadowing false
+actor "Doctor /\nClinician" as C
+actor "Lab Technician" as L
+participant "Browser UI" as UI
+participant "Express API" as API
+participant "consultation.service" as CS
+participant "lab.service" as LS
+participant "queue.service" as QS
+database "MongoDB" as DB
+
+C -> UI : Call next (consultation)
+UI -> API : POST /api/queue/consultation/call-next
+API -> QS : callNext (assignedTo me or general pool)
+UI -> API : GET /api/consultations/visit/:visitId
+API -> CS : context(visit, clinician)
+CS -> DB : visit + vitals, patient, history,\nthis visit's lab requests
+API --> UI : patient summary + note form
+
+C -> UI : write note, "Request lab tests" (FBC, MPS)
+UI -> API : PUT /api/consultations/visit/:visitId (draft note)
+UI -> API : POST .../lab-request {testIds}
+API -> CS : requestLab()
+group transaction
+  CS -> DB : labRequests.insertOne {status: requested, tests[]}
+  CS -> QS : moveToStage(consultation → lab)
+  QS -> DB : visit.stage = lab, queueStatus = waiting
+end
+API --> UI : 201 → patient leaves for the lab
+
+L -> UI : Call next (lab)
+UI -> API : POST /api/queue/lab/call-next
+L -> UI : "Sample collected"
+UI -> API : POST /api/lab/requests/:id/status {sample_collected}
+API -> LS : setStatus() — conditional on current status
+L -> UI : enter results + flags, "Release results"
+UI -> API : POST /api/lab/requests/:id/results {results[]}
+API -> LS : submitResults()
+group transaction
+  LS -> DB : every test has a result? → status: completed
+  LS -> QS : moveToStage(lab → consultation,\nassignedTo: requesting clinician,\nkeepQueueTime, labResultsReady: true)
+end
+API --> UI : 200
+
+C -> UI : Call next → same patient, tagged "Results ready"
+UI -> API : GET /api/consultations/visit/:visitId
+API -> CS : context() — marks results as reviewed
+API --> UI : results table + the same draft note
+@enduml

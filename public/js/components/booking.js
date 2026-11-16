@@ -106,7 +106,11 @@ export function openBookingDialog({ patient = null, selfBooking = false, onBooke
     }
   }
 
+  // Only the most recent request may update the grid: changing doctor and date quickly fires two
+  // requests, and a slower, older response must not overwrite a newer one (race condition).
+  let slotRequest = 0;
   async function loadSlots() {
+    const requestId = ++slotRequest;
     const grid = $('[data-slots]', form);
     const info = $('[data-slot-info]', form);
     state.time = '';
@@ -117,6 +121,7 @@ export function openBookingDialog({ patient = null, selfBooking = false, onBooke
     mount(grid, html`<div class="skeleton col-span-full h-10"></div>`);
     try {
       const data = await api.get(`/doctors/${state.doctorId}/slots${qs({ date: state.date })}`);
+      if (requestId !== slotRequest) return; // a newer request is in flight
       const free = data.slots.filter((s) => s.status === 'free').length;
       info.textContent = data.slots.length ? `${fmtWeekday(data.slots[0].startAt)} · ${free} free · ${data.doctor.slotMinutes} min each` : '';
       mount(

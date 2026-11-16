@@ -42,6 +42,7 @@ export async function render(root, { user }) {
     emptyHint: 'Press “Call next” for the next patient assigned to you or waiting in the general queue. Patients returning from the lab are marked “Results ready”.',
     extraTag: (v) => (v.labResultsReady ? html`<span class="badge badge-violet">Results ready</span>` : ''),
     renderCurrent: (el, visit, reload) => renderConsultation(el, visit, reload),
+    wide: true,
   });
 
   async function renderConsultation(el, visit, reload) {
@@ -104,7 +105,7 @@ export async function render(root, { user }) {
           ${p.allergies?.length
             ? html`<div class="flex gap-2 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">${icon('alert')}<div><p class="font-semibold">Allergies</p><p>${p.allergies.join(', ')}</p></div></div>`
             : html`<div class="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-500">No known allergies</div>`}
-          <div class="card"><div class="card-header"><h3 class="card-title">Today's vitals</h3></div><div class="card-body">${vitalsPanel(ctx.visit.triage)}</div></div>
+          <div class="card"><div class="card-header"><h3 class="card-title">Today's vitals</h3></div><div class="card-body">${vitalsPanel(ctx.visit.triage, { compact: true })}</div></div>
           <div class="card">
             <div class="card-header"><h3 class="card-title">Patient history</h3></div>
             <div class="card-body space-y-4 text-sm">

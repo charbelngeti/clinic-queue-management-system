@@ -59,3 +59,24 @@ This is a short log of the work done with the help of Claude Code (an AI coding 
 - Seed data now includes 14 days of synthetic completed visits. Running `npm run seed` also creates a small live queue for demos; the tests don't use it.
 - Tests: 9 new; the full suite (46) passes. Checked reports, portal and messaging in a browser. Fixed the no-show hint wording.
 - Found three stale dev-server processes still serving old code; stopped exactly those three.
+
+**Session 6: Increment 5 (hardening) and diagrams**
+- Committed and pushed Increment 4 (`8184501`) and tagged it `inc-4`.
+- With the group's permission:
+  - Downloaded the official PlantUML jar (v1.2026.10, 28 MB) into the git-ignored `tools/` folder.
+  - Installed the dev-only packages `pptxgenjs` and `docx` for generating the slides and report.
+- Wrote 11 PlantUML diagram sources from the implemented code, rendered to 13 PNGs:
+  - use-case diagram
+  - 5 sequence diagrams
+  - 2 communication diagrams
+  - 3 state machines
+  - data model
+  - architecture
+- Fixed rendering issues: escaped quotes, and class lines containing parentheses being hidden as "methods".
+- Walked through every role in the browser and took 18 screenshots. Bugs found and fixed along the way:
+  - a race condition in the booking slot grid
+  - lab table overflow
+  - the cramped consultation layout
+  - the TV display highlight fading the text
+  - a misleading dashboard label
+- Could not check the phone-width layout because the browser window would not resize.

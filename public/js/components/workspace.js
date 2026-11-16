@@ -13,11 +13,14 @@ import { fullName, since, statusBadge, priorityBadge, age, sexShort } from '../u
  * @param emptyHint text shown when nobody is being served
  * @param extraTag(visit) optional badge for queue rows (e.g. "Results ready")
  */
-export async function stageWorkspace(root, { stage, renderCurrent, emptyHint, extraTag }) {
+export async function stageWorkspace(root, { stage, renderCurrent, emptyHint, extraTag, wide = false }) {
+  // "wide" pages (consultation) put the queue above the work area until very large screens.
+  const gridCls = wide ? 'grid gap-5 2xl:grid-cols-[20rem_1fr]' : 'grid gap-5 lg:grid-cols-[22rem_1fr]';
+  const asideCls = wide ? 'card flex flex-col self-start 2xl:sticky 2xl:top-20' : 'card flex flex-col self-start lg:sticky lg:top-20';
   mount(
     root,
-    html`<div class="grid gap-5 lg:grid-cols-[22rem_1fr]">
-      <aside class="card flex flex-col self-start lg:sticky lg:top-20">
+    html`<div class="${gridCls}">
+      <aside class="${asideCls}">
         <div class="flex items-center justify-between gap-2 border-b border-slate-100 p-4">
           <div><h3 class="card-title">My queue</h3><p id="ws-sub" class="text-xs text-slate-500"></p></div>
           <button id="ws-call" class="btn btn-primary">${icon('megaphone', 'h-4 w-4')}Call next</button>
@@ -26,7 +29,7 @@ export async function stageWorkspace(root, { stage, renderCurrent, emptyHint, ex
         <ul id="ws-waiting" class="max-h-[60vh] divide-y divide-slate-100 overflow-y-auto"></ul>
         <div id="ws-skipped"></div>
       </aside>
-      <section id="ws-current"></section>
+      <section id="ws-current" class="min-w-0"></section>
     </div>`,
   );
   let currentId; // undefined until the first load, so the empty state is drawn too

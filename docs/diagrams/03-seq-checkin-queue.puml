@@ -1,0 +1,56 @@
+@startuml seq-checkin-queue
+' Sequence: patient check-in, queue assignment and "call next" (FR-QUE-01/03/06, FR-QUE-09)
+' Matches: POST /api/visits/check-in, POST /api/queue/:stage/call-next, GET /api/public/queue
+autonumber
+skinparam shadowing false
+actor Receptionist as R
+actor Nurse as N
+participant "Browser UI" as UI
+participant "Express API" as API
+participant "queue.service" as QS
+participant "appointment.service" as AS
+database "MongoDB\n(replica set)" as DB
+participant "Who's Next\ndisplay" as D
+
+== Check-in (one transaction) ==
+R -> UI : Check in (first stop: triage, priority)
+UI -> API : POST /api/visits/check-in {appointmentId, firstStage, priority}
+API -> QS : checkIn(data, actor)
+QS -> DB : startTransaction
+QS -> DB : appointments.findById → must be today
+QS -> DB : counters $inc → ticket "A-014", visit number
+QS -> DB : visits.insertOne {stage: triage, queueStatus: waiting,\nisActive: true, priorityRank, queueTime}
+alt patient already has an active visit
+  DB --> QS : E11000 (unique partial index patientId, isActive)
+  QS -> DB : abortTransaction
+  API --> UI : 409 "already in the queue"
+else
+  QS -> AS : transition(appointment, scheduled → checked_in)
+  AS -> DB : findOneAndUpdate({_id, status ∈ allowed}, $set + $push history)
+  QS -> DB : commitTransaction
+  API --> UI : 201 {ticketNo}
+  UI --> R : show ticket A-014
+end
+
+== Call next patient ==
+N -> UI : press "Call next"
+UI -> API : POST /api/queue/triage/call-next
+API -> QS : callNext('triage', nurse)
+QS -> DB : is this nurse already serving someone?
+QS -> DB : visits.findOneAndUpdate(\n  {stage: triage, queueStatus: waiting},\n  {$set: queueStatus: called, calledBy: nurse, calledAt, room},\n  {sort: {priorityRank: 1, queueTime: 1}})
+note right of DB
+  One atomic operation: two nurses
+  pressing at the same moment can
+  never receive the same patient.
+end note
+DB --> QS : visit (or null = queue empty)
+API --> UI : visit → open vitals form
+
+loop every 4 seconds
+  D -> API : GET /api/public/queue
+  API -> QS : publicBoard()
+  QS -> DB : active visits (ticket, stage, status, room only)
+  API --> D : tickets — no names (privacy)
+end
+D --> D : announce "A-014 → Triage A"
+@enduml

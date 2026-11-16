@@ -17,6 +17,7 @@ export async function render(root) {
 
   return stageWorkspace(root, {
     stage: 'lab',
+    wide: true,
     emptyHint: 'Press “Call next” to call the next patient for sample collection.',
     renderCurrent: async (el, visit, reload) => {
       mount(el, html`<div class="skeleton h-72"></div>`);

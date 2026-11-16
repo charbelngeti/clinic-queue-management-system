@@ -1,0 +1,36 @@
+@startuml seq-triage
+' Sequence: nurse assessment and vital signs (FR-NUR-02..05)
+' Matches: POST /api/visits/:id/triage, POST /api/visits/:id/send-to-consultation
+autonumber
+skinparam shadowing false
+actor Nurse as N
+participant "Triage workspace\n(triage.js)" as UI
+participant "Express API" as API
+participant "triage.service" as TS
+participant "queue.service" as QS
+database "MongoDB" as DB
+
+N -> UI : enter vitals, complaint, priority
+UI -> API : POST /api/visits/:id/triage {vitals, complaint, priority}
+API -> API : authorize('triage:write')\nvalidate ranges (e.g. systolic 50–260)
+alt physiologically impossible value (e.g. BP 1200)
+  API --> UI : 422 {systolic: "must be at most 260"}
+  UI --> N : highlight the field
+else valid
+  API -> TS : recordTriage(visitId, data, nurse)
+  TS -> TS : diastolic < systolic?\ncompute BMI\nflag abnormal values (FEVER, HIGH_BP …)
+  TS -> DB : visits.findOneAndUpdate({_id, stage: triage,\n queueStatus ∈ [called, in_service]},\n {$set: triage{vitals, flags}, priority})
+  DB --> TS : visit
+  API --> UI : 200 visit
+  UI --> N : vitals summary with red flags
+end
+
+N -> UI : "Send to consultation" (booked doctor / chosen / general queue)
+UI -> API : POST /api/visits/:id/send-to-consultation {assignedTo?}
+API -> TS : sendToConsultation(visitId, assignedTo)
+TS -> QS : moveToStage(triage → consultation,\nkeepQueueTime: true)  [transaction]
+QS -> DB : close triage stage-history entry,\nset stage: consultation, queueStatus: waiting
+QS -> DB : push new consultation stage-history entry
+API --> UI : 200
+UI --> N : workspace ready for next patient
+@enduml

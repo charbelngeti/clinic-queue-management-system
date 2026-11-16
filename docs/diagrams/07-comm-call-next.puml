@@ -1,0 +1,34 @@
+@startuml comm-call-next
+' UML communication diagram: "Call next patient" (FR-QUE-06).
+' Objects are linked; numbered messages show the order (same interaction as the sequence diagram,
+' but emphasising which objects collaborate).
+!pragma layout smetana
+allowmixing
+skinparam shadowing false
+skinparam object {
+  BackgroundColor #EFFCF9
+  BorderColor #088577
+}
+left to right direction
+
+actor ":Staff member" as Staff
+object ":Workspace UI" as UI
+object ":Express router" as Router
+object ":authenticate / authorize" as Auth
+object ":QueueController" as Ctl
+object ":QueueService" as Svc
+object ":Visit model" as Visit
+database "visits\ncollection" as Coll
+object "Who's Next display" as Disp
+
+Staff --> UI : 1: click Call next
+UI --> Router : 2: POST /api/queue/:stage/call-next
+Router --> Auth : 3: verify session & role
+Auth --> Ctl : 4: callNext(req)
+Ctl --> Svc : 5: callNext(stage, actor)
+Svc --> Visit : 6: findOne(busy?)\n7: findOneAndUpdate(waiting → called,\nsort priority, queueTime)
+Visit --> Coll : 8: atomic update on one document
+Svc --> Ctl : 9: visit | null
+Ctl --> UI : 10: 200 {visit}
+Disp --> Router : 11: GET /api/public/queue (poll)
+@enduml

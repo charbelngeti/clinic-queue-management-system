@@ -1,0 +1,58 @@
+@startuml seq-register-book
+' Sequence: patient registration and appointment booking (FR-PAT-01/02, FR-APT-01/03)
+' Matches: POST /api/patients, GET /api/doctors/:id/slots, POST /api/appointments
+autonumber
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+actor Receptionist as R
+participant "Browser UI\n(patient-form.js,\nbooking.js)" as UI
+participant "Express API\n(auth + RBAC middleware)" as API
+participant "patient.service" as PS
+participant "appointment.service\n+ doctor.service" as AS
+database "MongoDB" as DB
+
+== Register patient ==
+R -> UI : fill in registration form
+UI -> API : POST /api/patients {details}
+API -> API : authenticate (JWT cookie)\nauthorize('patients:write')\nvalidate input
+API -> PS : create(data)
+PS -> DB : find possible duplicates\n(name + DOB, phone, national ID)
+alt likely duplicate found and not confirmed
+  DB --> PS : matches
+  PS --> API : 409 POSSIBLE_DUPLICATE {matches}
+  API --> UI : 409
+  UI --> R : show matching records\n("open record" / "register anyway")
+else no duplicate (or confirmed)
+  PS -> DB : counters.findOneAndUpdate($inc)\n→ next patient number
+  PS -> DB : patients.insertOne
+  note right of DB : unique index on nationalId\nrejects a real duplicate (E11000 → 409)
+  DB --> PS : patient (P-2026-00043)
+  PS --> API : patient
+  API --> UI : 201 Created
+  UI --> R : open patient record
+end
+
+== Book appointment ==
+R -> UI : choose doctor and date
+UI -> API : GET /api/doctors/:id/slots?date=
+API -> AS : availableSlots(doctor, date)
+AS -> DB : read weekly availability + active appointments
+AS --> API : slots (free / booked / past)
+API --> UI : slot grid
+R -> UI : pick free slot, confirm
+UI -> API : POST /api/appointments {patientId, doctorId, date, time}
+API -> AS : book(data, actor)
+AS -> AS : slot inside schedule?\nin the future?\nsame-day duplicate?
+AS -> DB : appointments.insertOne {status: scheduled, isActive: true}
+alt slot taken a moment ago by someone else
+  DB --> AS : E11000 duplicate key\n(unique partial index doctorId+startAt)
+  AS --> API : error
+  API --> UI : 409 "This time slot has just been booked"
+  UI -> API : reload slots
+else success
+  DB --> AS : appointment
+  AS --> API : appointment
+  API --> UI : 201 Created
+  UI --> R : "Appointment APT-2026-00081 booked"
+end
+@enduml

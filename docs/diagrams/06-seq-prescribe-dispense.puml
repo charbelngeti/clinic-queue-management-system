@@ -1,0 +1,54 @@
+@startuml seq-prescribe-dispense
+' Sequence: prescription creation and medication dispensing (FR-CON-06, FR-PHA-01..04, DR-05/06/07)
+' Matches: POST /api/consultations/visit/:visitId/prescription, POST /api/pharmacy/prescriptions/:id/dispense
+autonumber
+skinparam shadowing false
+actor "Doctor /\nClinician" as C
+actor Pharmacist as P
+participant "Browser UI" as UI
+participant "Express API" as API
+participant "consultation.service" as CS
+participant "pharmacy.service" as PH
+participant "queue.service" as QS
+database "MongoDB" as DB
+
+C -> UI : add medications, "Send to pharmacy"
+UI -> API : POST .../prescription {items[]}
+API -> CS : prescribe(visitId, items, clinician)
+CS -> DB : load medications (formulary)
+alt clinician selects a doctor-only drug
+  API --> UI : 403 "Clinicians may not prescribe …"
+else drug matches a recorded allergy and not acknowledged
+  API --> UI : 409 ALLERGY_WARNING
+  UI --> C : show warning + "I have reviewed" checkbox
+  C -> UI : acknowledge and resend
+else allowed
+  group transaction
+    CS -> DB : prescriptions.insertOne {status: pending,\nprescriber snapshot, items + name snapshots}
+    CS -> DB : consultation.status = final (read-only)
+    CS -> QS : moveToStage(consultation → pharmacy)
+  end
+  API --> UI : 201 RX-2026-00093
+end
+
+P -> UI : Call next (pharmacy)
+UI -> API : GET /api/pharmacy/visit/:visitId
+API -> PH : forVisit() → prescription, stock, allergy check
+P -> UI : confirm quantities, "Dispense & complete"
+UI -> API : POST /api/pharmacy/prescriptions/:id/dispense {lines}
+API -> PH : dispense(rxId, lines, pharmacist)
+group transaction (all or nothing)
+  loop each item
+    PH -> PH : quantity ≤ prescribed − already dispensed?
+    PH -> DB : medications.findOneAndUpdate(\n {_id, stockQty: {$gte: qty}}, {$inc: {stockQty: -qty}})
+    alt not enough stock
+      DB --> PH : null
+      PH --> API : 409 INSUFFICIENT_STOCK
+      note over DB : transaction aborted —\nearlier stock decrements are rolled back
+    end
+  end
+  PH -> DB : prescription → dispensed / partially_dispensed
+  PH -> QS : moveToStage(pharmacy → done)\nvisit completed, appointment completed
+end
+API --> UI : 200 → visit complete
+@enduml

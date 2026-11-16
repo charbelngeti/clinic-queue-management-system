@@ -1,0 +1,160 @@
+@startuml data-model
+' MongoDB data model (document-oriented ERD).
+' Each class = a collection. Composition (◆) = EMBEDDED sub-document; arrow = REFERENCE (ObjectId).
+' {unique, partial} = unique partial index (only documents with isActive: true).
+!pragma layout smetana
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #088577
+  ArrowColor #0B6A61
+}
+hide methods
+hide circle
+
+class users <<collection>> {
+  _id : ObjectId
+  email : string {unique}
+  passwordHash : string — bcrypt hash
+  role : admin|receptionist|doctor|clinician|nurse|lab_tech|pharmacist|patient
+  firstName, lastName, phone
+  isActive : bool
+  mustChangePassword : bool
+  patientId : ObjectId?
+}
+class staffProfile <<embedded>> {
+  staffNo {unique}, department, specialization
+  licenseNo, room, slotMinutes
+  unavailableDates : string[]
+}
+class availability <<embedded>> {
+  dayOfWeek : 0–6
+  start : "HH:MM"
+  end : "HH:MM"
+}
+users *-- "0..1" staffProfile
+staffProfile *-- "0..*" availability
+
+class patients <<collection>> {
+  _id : ObjectId
+  patientNo : string {unique}
+  firstName, lastName, dateOfBirth, sex
+  nationalId : string {unique if present}
+  phone, email, address, bloodGroup
+  allergies : string[]
+  chronicConditions : string[]
+  userId : ObjectId?
+}
+class emergencyContact <<embedded>> {
+  name, relationship, phone
+}
+patients *-- "0..1" emergencyContact
+
+class appointments <<collection>> {
+  appointmentNo {unique}
+  patientId, doctorId : ObjectId
+  startAt, endAt : Date
+  status : scheduled|checked_in|completed|cancelled|no_show
+  isActive : bool
+  {doctorId+startAt} {unique, partial}
+  {patientId+startAt} {unique, partial}
+}
+class statusHistory <<embedded>> {
+  status, at, by, note
+}
+appointments *-- "1..*" statusHistory
+
+class visits <<collection>> {
+  visitNo {unique}
+  ticketNo, clinicDate {unique together}
+  patientId, appointmentId?, doctorId?
+  stage : triage|consultation|lab|pharmacy|done
+  queueStatus : waiting|called|in_service|skipped|completed|cancelled
+  isActive : bool — {patientId} {unique, partial}
+  priority, priorityRank, queueTime
+  assignedTo, calledBy, room
+  labResultsReady : bool
+}
+class triage <<embedded>> {
+  vitals {temperature, systolic, diastolic,
+  pulse, respRate, spo2, weight, height, bmi}
+  flags[], complaint, notes, recordedBy
+}
+class stageHistory <<embedded>> {
+  stage, enteredAt, calledAt, leftAt, servedBy
+}
+visits *-- "0..1" triage
+visits *-- "1..*" stageHistory
+
+class consultations <<collection>> {
+  visitId, patientId, clinicianId
+  chiefComplaint, history, examination
+  diagnosis, plan, notes
+  referral {toDoctorId, reason}
+  status : draft|final
+}
+class labRequests <<collection>> {
+  requestNo {unique}
+  visitId, patientId, requestedBy
+  status : requested|sample_collected|in_progress|completed
+  completedBy, completedAt
+}
+class labTestLine <<embedded>> {
+  testId, code, name — snapshot
+  result {value, unit, refRange, flag, comment}
+}
+labRequests *-- "1..*" labTestLine
+
+class labTests <<collection>> {
+  code {unique}, name, sampleType, unit, refRange
+}
+class prescriptions <<collection>> {
+  rxNo {unique}
+  visitId {unique}, patientId
+  prescriber {userId, name, role, licenseNo} — snapshot
+  status : pending|partially_dispensed|dispensed
+  dispensedBy, dispensedAt
+}
+class rxItem <<embedded>> {
+  medicationId, name, strength — snapshot
+  dose, frequency, durationDays
+  quantity, dispensedQty
+}
+prescriptions *-- "1..*" rxItem
+
+class medications <<collection>> {
+  name+strength+form {unique}
+  stockQty ≥ 0 — enforced by $jsonSchema
+  reorderLevel, clinicianMayPrescribe, isActive
+}
+class conversations <<collection>> {
+  counterpartId, subject, patientId?
+  lastMessageAt, unreadForReception,
+  unreadForCounterpart
+}
+class messages <<collection>> {
+  conversationId, senderId, body, createdAt
+}
+class auditLogs <<collection>> {
+  at, userId, role, action, entity, entityId, summary
+}
+class counters <<collection>> {
+  _id : "ticket:2026-11-16:A" …
+  seq : number — atomic $inc
+}
+
+users "0..1" --> "0..1" patients : patientId (portal login)
+appointments "*" --> "1" patients
+appointments "*" --> "1" users : doctorId
+visits "*" --> "1" patients
+visits "0..1" --> "0..1" appointments
+consultations "*" --> "1" visits
+consultations "*" --> "1" users : clinicianId
+labRequests "*" --> "1" visits
+labTestLine "*" --> "1" labTests
+prescriptions "0..1" --> "1" visits
+rxItem "*" --> "1" medications
+conversations "*" --> "1" users : counterpart
+messages "*" --> "1" conversations
+auditLogs "*" --> "0..1" users
+@enduml

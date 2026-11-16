@@ -51,7 +51,7 @@ async function load() {
             <ul class="mt-3 space-y-2">
               ${s.nowServing.length
                 ? s.nowServing.slice(0, 4).map(
-                    (c) => html`<li class="flex items-center justify-between rounded-2xl px-4 py-3 ${c.status === 'called' ? 'animate-pulse bg-brand-500 text-white' : 'bg-white/10'}">
+                    (c) => html`<li class="flex items-center justify-between rounded-2xl px-4 py-3 ${c.status === 'called' ? 'bg-brand-500 text-white ring-4 ring-brand-300/40' : 'bg-white/10'}">
                       <span class="font-mono text-4xl font-black tracking-tight">${c.ticketNo}</span>
                       <span class="text-right text-lg font-semibold">${c.room || '—'}<span class="block text-xs font-normal opacity-80">${c.status === 'called' ? 'Please proceed' : 'In progress'}</span></span>
                     </li>`,

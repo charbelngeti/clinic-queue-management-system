@@ -1,0 +1,35 @@
+@startuml comm-dispense
+' UML communication diagram: "Dispense medication" (FR-PHA-03/04) — one MongoDB transaction.
+!pragma layout smetana
+allowmixing
+skinparam shadowing false
+skinparam object {
+  BackgroundColor #EFFCF9
+  BorderColor #088577
+}
+left to right direction
+
+actor ":Pharmacist" as P
+object ":Pharmacy UI" as UI
+object ":ClinicalController" as Ctl
+object ":PharmacyService" as Svc
+object ":Session (transaction)" as Tx
+object ":Prescription" as Rx
+object ":Medication" as Med
+object ":QueueService" as QS
+object ":Visit" as Visit
+object ":Appointment" as Appt
+
+P --> UI : 1: Dispense & complete
+UI --> Ctl : 2: POST /pharmacy/prescriptions/:id/dispense
+Ctl --> Svc : 3: dispense(rxId, lines)
+Svc --> Tx : 4: startTransaction
+Svc --> Rx : 5: load & check status
+Svc --> Med : 6*: [each item] decrement stock if stockQty ≥ qty
+Svc --> Rx : 7: set dispensedQty, status
+Svc --> QS : 8: moveToStage(pharmacy → done)
+QS --> Visit : 9: complete visit
+QS --> Appt : 10: appointment → completed
+Svc --> Tx : 11: commit (or abort on insufficient stock)
+Ctl --> UI : 12: 200 / 409
+@enduml

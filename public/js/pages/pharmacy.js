@@ -9,6 +9,7 @@ import { stageWorkspace } from '../components/workspace.js';
 export async function render(root) {
   return stageWorkspace(root, {
     stage: 'pharmacy',
+    wide: true,
     emptyHint: 'Press “Call next” to call the next patient to the pharmacy window.',
     renderCurrent: async (el, visit, reload) => {
       mount(el, html`<div class="skeleton h-72"></div>`);

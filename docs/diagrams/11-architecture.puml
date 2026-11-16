@@ -1,0 +1,42 @@
+@startuml architecture
+' Three-tier layered architecture of CareQueue Clinic (as implemented).
+!pragma layout smetana
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor #FFFFFF
+  BorderColor #088577
+}
+
+node "Browser (any device)" {
+  rectangle "Staff & patient app\n(app.html + ES modules)\nrole-based navigation, hash router" as App
+  rectangle "Login page\n(index.html)" as Login
+  rectangle "Who's Next display\n(display.html, no login)" as Disp
+  rectangle "Tailwind CSS v4\n(compiled app.css)" as CSS
+}
+
+node "Node.js 22 server" {
+  rectangle "Express 5 app" {
+    rectangle "Middleware\nhelmet (security headers, CSP) → JSON parser →\ncookie parser → reject $-keys → authenticate (JWT) →\nauthorize(permission) → validate" as MW
+    rectangle "Routes\n/api/*" as Routes
+    rectangle "Controllers\n(HTTP in/out only)" as Ctl
+    rectangle "Services\nbusiness rules, state machines,\ntransactions, RBAC projections" as Svc
+    rectangle "Mongoose models\nschemas & validation" as Models
+    rectangle "Static file server\n(public/)" as Static
+    rectangle "Central error handler\n{error:{code,message,details}}" as Err
+  }
+}
+
+database "MongoDB Atlas (replica set)\n13 collections · $jsonSchema validators ·\nunique / partial / compound indexes ·\nmulti-document transactions" as DB
+
+App --> MW : HTTPS / JSON\nhttpOnly SameSite cookie
+Login --> MW
+Disp --> MW : GET /api/public/queue\n(polls every 4 s)
+MW --> Routes
+Routes --> Ctl
+Ctl --> Svc
+Svc --> Models
+Models --> DB : MongoDB driver
+App ..> Static : HTML / JS / CSS
+Ctl ..> Err : errors
+@enduml
