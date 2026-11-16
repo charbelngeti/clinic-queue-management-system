@@ -6,6 +6,7 @@ import * as auth from '../controllers/auth.controller.js';
 import * as usersCtl from '../controllers/users.controller.js';
 import * as fd from '../controllers/frontdesk.controller.js';
 import * as q from '../controllers/queue.controller.js';
+import * as cl from '../controllers/clinical.controller.js';
 
 const router = Router();
 
@@ -73,5 +74,30 @@ router.post('/visits/:id/requeue', q.requeue);
 router.post('/visits/:id/cancel', authorize('visits:cancel'), q.cancelVisit);
 router.post('/visits/:id/triage', authorize('triage:write'), q.recordTriage);
 router.post('/visits/:id/send-to-consultation', authorize('triage:write'), q.sendToConsultation);
+
+/* consultation (doctor / clinician) */
+router.get('/catalogues', authorize('consultations:write'), cl.catalogues);
+router.get('/lab-tests', authorize('labTests:read'), cl.labTests);
+router.get('/consultations/visit/:visitId', authorize('consultations:write'), cl.consultationContext);
+router.put('/consultations/visit/:visitId', authorize('consultations:write'), cl.saveNote);
+router.post('/consultations/visit/:visitId/lab-request', authorize('labRequests:create'), cl.requestLab);
+router.post('/consultations/visit/:visitId/prescription', authorize('prescriptions:create'), cl.prescribe);
+router.post('/consultations/visit/:visitId/complete', authorize('consultations:write'), cl.completeVisit);
+router.post('/consultations/visit/:visitId/refer', authorize('consultations:write'), cl.refer);
+
+/* laboratory */
+router.get('/lab/requests', authorize('labRequests:process'), cl.labList);
+router.get('/lab/visit/:visitId', authorize('labRequests:process'), cl.labForVisit);
+router.post('/lab/requests/:id/status', authorize('labRequests:process'), cl.labStatus);
+router.post('/lab/requests/:id/results', authorize('labRequests:process'), cl.labResults);
+
+/* pharmacy & formulary */
+router.get('/pharmacy/prescriptions', authorize('prescriptions:dispense'), cl.rxList);
+router.get('/pharmacy/visit/:visitId', authorize('prescriptions:dispense'), cl.rxForVisit);
+router.post('/pharmacy/prescriptions/:id/dispense', authorize('prescriptions:dispense'), cl.dispense);
+router.get('/medications', authorize('medications:read'), cl.listMedications);
+router.post('/medications', authorize('medications:manage'), cl.createMedication);
+router.patch('/medications/:id', authorize('medications:manage'), cl.updateMedication);
+router.post('/medications/:id/receive', authorize('medications:stock'), cl.receiveStock);
 
 export default router;

@@ -37,3 +37,14 @@ This is a short log of the work done with the help of Claude Code (an AI coding 
   - Pages: login, admin staff accounts and doctor schedules; reception dashboard, patients, patient record, appointments with slot booking, check-in and queue board.
   - Nurse triage workspace and the public "Who's Next" display.
 - Wrote 27 automated API tests (`node:test` + supertest). All 27 pass (one test-data issue fixed along the way). Checked the main flows in a browser.
+
+**Session 4: Increment 3 (clinical flow)**
+- Committed and pushed Session 3 (`84fd4a6`) and tagged it `inc-2`. Added Office lock files to `.gitignore`.
+- Created `docs/Demo-Accounts.docx` (demo login sheet) without adding new dependencies.
+- Backend:
+  - Consultation service shared by doctors and clinicians: draft notes, lab requests, prescriptions with allergy acknowledgement, clinician prescribing limits, referral and discharge.
+  - Lab service: sample collection, results, and release back to the requesting clinician.
+  - Pharmacy service: dispensing as a single transaction with a conditional stock decrement, plus inventory and formulary.
+- Frontend: consultation workspace, lab workspace, pharmacy workspace, medications & stock, and daily lab/prescription records.
+- Bugs found in the browser and fixed: workspace empty state not drawn on first load, nav highlighting on nested routes, narrow lab result field.
+- Tests: 10 new clinical tests; the full suite (37) passes. The full patient journey was checked in a browser across reception, doctor, lab and pharmacy.

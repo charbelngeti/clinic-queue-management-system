@@ -28,7 +28,7 @@ export async function stageWorkspace(root, { stage, renderCurrent, emptyHint, ex
       <section id="ws-current"></section>
     </div>`,
   );
-  let currentId = null;
+  let currentId; // undefined until the first load, so the empty state is drawn too
 
   async function load() {
     let data;

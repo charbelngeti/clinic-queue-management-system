@@ -13,6 +13,8 @@ export const getUser = () => state.user;
 function renderNav() {
   const sections = NAV[state.user.role] || [];
   const current = currentPath();
+  // Highlight the most specific nav item matching the current path (e.g. /lab/records, not /lab).
+  const active = sections.flatMap(([, items]) => items.map(([p]) => p)).filter((p) => current === p || current.startsWith(`${p}/`)).sort((a, b) => b.length - a.length)[0];
   mount(
     $('#nav'),
     sections.map(
@@ -20,7 +22,7 @@ function renderNav() {
         <p class="px-3 pb-2 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">${title}</p>
         <div class="space-y-0.5">
           ${items.map(
-            ([path, label, ic]) => html`<a href="#${path}" class="nav-link ${current.startsWith(path) ? 'active' : ''}" data-path="${path}">
+            ([path, label, ic]) => html`<a href="#${path}" class="nav-link ${path === active ? 'active' : ''}" data-path="${path}">
               ${icon(ic)}<span class="flex-1">${label}</span>
               <span class="badge badge-red" data-badge="${path}" ${state.badges[path] ? '' : 'hidden'}>${state.badges[path] || ''}</span>
             </a>`,
