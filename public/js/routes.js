@@ -24,6 +24,12 @@ export const ROUTES = [
   { path: '/pharmacy/records', title: 'Prescriptions', roles: ['pharmacist'], load: () => import('./pages/records.js') },
   { path: '/medications', title: 'Medications & stock', roles: ['pharmacist', 'admin'], load: () => import('./pages/medications.js') },
 
+  // portal, messaging & insight
+  { path: '/portal', title: 'My care', roles: ['patient'], load: () => import('./pages/portal.js') },
+  { path: '/messages', title: 'Messages', roles: STAFF.filter((x) => x !== 'admin').concat('patient'), load: () => import('./pages/messages.js') },
+  { path: '/admin/reports', title: 'Reports', roles: ['admin'], load: () => import('./pages/reports.js') },
+  { path: '/admin/audit', title: 'Activity log', roles: ['admin'], load: () => import('./pages/audit.js') },
+
   // administration
   { path: '/admin/users', title: 'Staff accounts', roles: ['admin'], load: () => import('./pages/admin-users.js') },
   { path: '/admin/doctors', title: 'Doctor schedules', roles: ['admin'], load: () => import('./pages/admin-doctors.js') },
@@ -38,25 +44,25 @@ export const HOME = {
   clinician: '/consultations',
   lab_tech: '/lab',
   pharmacist: '/pharmacy',
-  patient: '/account/password',
+  patient: '/portal',
 };
 
 // Sidebar sections per role: [sectionTitle, [[path, label, icon]]]
 export const NAV = {
   admin: [
-    ['Overview', [['/dashboard', 'Dashboard', 'home'], ['/queue', 'Queue board', 'queue']]],
+    ['Overview', [['/dashboard', 'Dashboard', 'home'], ['/queue', 'Queue board', 'queue'], ['/admin/reports', 'Reports', 'chart']]],
     ['Records (read-only)', [['/patients', 'Patients', 'users'], ['/appointments', 'Appointments', 'calendar']]],
-    ['Administration', [['/admin/users', 'Staff accounts', 'shield'], ['/admin/doctors', 'Doctor schedules', 'clock'], ['/medications', 'Medication formulary', 'pill']]],
+    ['Administration', [['/admin/users', 'Staff accounts', 'shield'], ['/admin/doctors', 'Doctor schedules', 'clock'], ['/medications', 'Medication formulary', 'pill'], ['/admin/audit', 'Activity log', 'file']]],
   ],
   receptionist: [
-    ['Front desk', [['/dashboard', 'Dashboard', 'home'], ['/queue', 'Queue board', 'queue'], ['/appointments', 'Appointments', 'calendar'], ['/patients', 'Patients', 'users']]],
+    ['Front desk', [['/dashboard', 'Dashboard', 'home'], ['/queue', 'Queue board', 'queue'], ['/appointments', 'Appointments', 'calendar'], ['/patients', 'Patients', 'users'], ['/messages', 'Messages', 'message']]],
   ],
-  nurse: [['Nursing', [['/triage', 'Triage queue', 'heart']]]],
-  doctor: [['Clinic', [['/consultations', 'Consultations', 'stethoscope'], ['/appointments', 'My appointments', 'calendar']]]],
-  clinician: [['Clinic', [['/consultations', 'Consultations', 'stethoscope']]]],
-  lab_tech: [['Laboratory', [['/lab', 'Lab queue', 'flask'], ['/lab/records', 'Lab requests', 'file']]]],
-  pharmacist: [['Pharmacy', [['/pharmacy', 'Dispensing queue', 'pill'], ['/pharmacy/records', 'Prescriptions', 'file'], ['/medications', 'Medications & stock', 'package']]]],
-  patient: [],
+  nurse: [['Nursing', [['/triage', 'Triage queue', 'heart'], ['/messages', 'Messages', 'message']]]],
+  doctor: [['Clinic', [['/consultations', 'Consultations', 'stethoscope'], ['/appointments', 'My appointments', 'calendar'], ['/messages', 'Messages', 'message']]]],
+  clinician: [['Clinic', [['/consultations', 'Consultations', 'stethoscope'], ['/messages', 'Messages', 'message']]]],
+  lab_tech: [['Laboratory', [['/lab', 'Lab queue', 'flask'], ['/lab/records', 'Lab requests', 'file'], ['/messages', 'Messages', 'message']]]],
+  pharmacist: [['Pharmacy', [['/pharmacy', 'Dispensing queue', 'pill'], ['/pharmacy/records', 'Prescriptions', 'file'], ['/medications', 'Medications & stock', 'package'], ['/messages', 'Messages', 'message']]]],
+  patient: [['My care', [['/portal', 'Home', 'home'], ['/messages', 'Messages', 'message']]]],
 };
 
 /** Match "#/patients/abc123" against "/patients/:id" style paths (most specific first). */

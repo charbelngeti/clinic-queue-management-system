@@ -48,3 +48,14 @@ This is a short log of the work done with the help of Claude Code (an AI coding 
 - Frontend: consultation workspace, lab workspace, pharmacy workspace, medications & stock, and daily lab/prescription records.
 - Bugs found in the browser and fixed: workspace empty state not drawn on first load, nav highlighting on nested routes, narrow lab result field.
 - Tests: 10 new clinical tests; the full suite (37) passes. The full patient journey was checked in a browser across reception, doctor, lab and pharmacy.
+
+**Session 5: Increment 4 (portal, messaging, reports, audit)**
+- Committed and pushed Session 4 (`361dbb6`) and tagged it `inc-3`.
+- Backend:
+  - Messaging service with reception as a shared desk, unread counters and access rules.
+  - Report service using MongoDB aggregation pipelines: visits, per-department wait and service times, no-show rate, lab turnaround, top medications.
+  - Per-department stats and an audit log query.
+- Frontend: patient portal, messages (all roles except admin), admin reports and activity log, a stats strip in every workspace, and an unread badge in the navigation.
+- Seed data now includes 14 days of synthetic completed visits. Running `npm run seed` also creates a small live queue for demos; the tests don't use it.
+- Tests: 9 new; the full suite (46) passes. Checked reports, portal and messaging in a browser. Fixed the no-show hint wording.
+- Found three stale dev-server processes still serving old code; stopped exactly those three.

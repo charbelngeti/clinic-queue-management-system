@@ -22,6 +22,7 @@ export async function stageWorkspace(root, { stage, renderCurrent, emptyHint, ex
           <div><h3 class="card-title">My queue</h3><p id="ws-sub" class="text-xs text-slate-500"></p></div>
           <button id="ws-call" class="btn btn-primary">${icon('megaphone', 'h-4 w-4')}Call next</button>
         </div>
+        <div id="ws-stats" class="grid grid-cols-3 divide-x divide-slate-100 border-b border-slate-100 text-center"></div>
         <ul id="ws-waiting" class="max-h-[60vh] divide-y divide-slate-100 overflow-y-auto"></ul>
         <div id="ws-skipped"></div>
       </aside>
@@ -29,8 +30,21 @@ export async function stageWorkspace(root, { stage, renderCurrent, emptyHint, ex
     </div>`,
   );
   let currentId; // undefined until the first load, so the empty state is drawn too
+  let statsTick = 0;
+
+  // Small personal dashboard (FR-RPT-01): refreshed every 30 s.
+  async function loadStats() {
+    try {
+      const s = await api.get(`/queue/${stage}/stats`);
+      const cell = (v, l) => html`<div class="px-2 py-3"><p class="text-lg font-bold text-slate-900">${v}</p><p class="text-[11px] text-slate-500">${l}</p></div>`;
+      mount($('#ws-stats', root), html`${cell(s.servedByMeToday, 'Seen by me today')}${cell(s.servedToday, 'Seen by team')}${cell(s.avgWaitToday != null ? `${s.avgWaitToday}m` : '—', 'Avg. wait today')}`);
+    } catch {
+      /* stats are optional */
+    }
+  }
 
   async function load() {
+    if (statsTick++ % 6 === 0) loadStats();
     let data;
     try {
       data = await api.get(`/queue/${stage}`);

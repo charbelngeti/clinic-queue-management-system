@@ -103,7 +103,7 @@ const MEDICATIONS = [
 const REASONS = ['Follow-up review', 'Fever and headache', 'Persistent cough', 'Blood pressure review', 'Diabetes review',
   'Abdominal pain', 'Child immunisation follow-up', 'Skin rash', 'Back pain', 'General check-up', 'Sore throat', 'Joint pains'];
 
-export async function seed({ log = console.log } = {}) {
+export async function seed({ log = console.log, withLiveQueue = false } = {}) {
   // Clear every collection (deleteMany works with the Atlas readWrite role; dropDatabase does not).
   for (const model of Object.values(M)) await model.deleteMany({});
   await initDatabase();
@@ -218,13 +218,206 @@ export async function seed({ log = console.log } = {}) {
   await M.Counter.create({ _id: `appointmentNo:${year}`, seq: aptSeq });
   log(`  ✓ ${appointments.length} appointments (today and the next 7 days)`);
 
+  const hist = await seedHistory({ staff, patients: patientDocs, today, year, aptSeq });
+  log(`  ✓ ${hist.visits} completed past visits over 14 days (${hist.labs} lab requests, ${hist.rx} prescriptions, ${hist.missed} missed/cancelled appointments)`);
+  if (withLiveQueue) {
+    const n = await seedLiveQueue({ staff, patients: patientDocs, today });
+    log(`  ✓ ${n} patients already waiting today (live queue for the demo)`);
+  }
+
   return { staff, patients: patientDocs };
+}
+
+const minutes = (d, m) => new Date(d.getTime() + m * 60000);
+const between = (a, b) => a + Math.floor(rand() * (b - a + 1));
+const normalVitals = () => {
+  const weight = between(48, 95);
+  const height = between(150, 185);
+  return {
+    temperature: Math.round((36.2 + rand() * 1.2) * 10) / 10,
+    systolic: between(105, 138), diastolic: between(65, 88), pulse: between(62, 96), respRate: between(14, 20), spo2: between(95, 99),
+    weight, height, bmi: Math.round((weight / (height / 100) ** 2) * 10) / 10,
+  };
+};
+const COMPLAINTS = [
+  ['Fever and headache', 'Malaria (confirmed)', ['MPS', 'FBC'], ['Artemether/Lumefantrine', 'Paracetamol']],
+  ['Cough and sore throat', 'Upper respiratory tract infection', null, ['Amoxicillin', 'Paracetamol']],
+  ['Burning urination', 'Urinary tract infection', ['UA'], ['Ciprofloxacin']],
+  ['Epigastric pain', 'Gastritis', ['HPYL'], ['Omeprazole']],
+  ['Blood pressure review', 'Essential hypertension, controlled', null, ['Amlodipine']],
+  ['Diabetes review', 'Type 2 diabetes mellitus', ['RBS', 'HBA1C'], ['Metformin']],
+  ['Diarrhoea for 2 days', 'Acute gastroenteritis', ['STOOL'], ['Oral Rehydration Salts', 'Zinc Sulphate']],
+  ['Skin rash and itching', 'Allergic dermatitis', null, ['Cetirizine']],
+  ['Back pain', 'Mechanical low back pain', null, ['Paracetamol']],
+  ['General check-up', 'Healthy adult, no acute illness', ['FBC'], null],
+];
+
+/** 14 days of completed visits so that reports, history panels and the portal have realistic content. */
+async function seedHistory({ staff, patients, today, year, aptSeq }) {
+  const role = (r) => staff.filter((u) => u.role === r);
+  const [doctors, clinicians, nurses, labs, pharms] = ['doctor', 'clinician', 'nurse', 'lab_tech', 'pharmacist'].map(role);
+  const reception = staff.find((u) => u.role === 'receptionist');
+  const tests = await M.LabTest.find();
+  const meds = await M.Medication.find();
+  const visits = [], appts = [], consults = [], labReqs = [], rxs = [];
+  let visitSeq = 0, labSeq = 0, rxSeq = 0, missed = 0;
+
+  for (let back = 14; back >= 1; back--) {
+    const date = addDays(today, -back);
+    if (weekdayOf(date) === 0) continue; // closed on Sundays
+    const used = new Set();
+    const tickets = { A: 0, W: 0 };
+    const n = between(6, 12);
+    for (let i = 0; i < n; i++) {
+      let patient = i === 0 && back % 4 === 1 ? patients[0] : pick(patients); // give the portal demo patient some history
+      while (used.has(String(patient._id))) patient = pick(patients);
+      used.add(String(patient._id));
+      const isAppt = rand() < 0.6;
+      const doctor = pick(doctors);
+      const arrival = clinicDateTimeToUtc(date, minutesToTime(8 * 60 + i * 25 + between(0, 10)));
+      const visitId = new mongoose.Types.ObjectId();
+      let apptId;
+      const prefix = isAppt ? 'A' : 'W';
+      tickets[prefix]++;
+      if (isAppt) {
+        apptId = new mongoose.Types.ObjectId();
+        const startAt = clinicDateTimeToUtc(date, minutesToTime(8 * 60 + i * 25));
+        appts.push({
+          _id: apptId, appointmentNo: `APT-${year}-${String(++aptSeq).padStart(5, '0')}`, patientId: patient._id, doctorId: doctor._id,
+          startAt, endAt: minutes(startAt, 20), reason: pick(REASONS), status: 'completed', isActive: false, visitId,
+          bookedBy: { userId: reception._id, channel: 'reception' },
+          statusHistory: [{ status: 'scheduled', at: minutes(startAt, -3 * 1440), by: reception._id }, { status: 'checked_in', at: arrival, by: reception._id }, { status: 'completed', at: minutes(arrival, 90), by: doctor._id }],
+        });
+      }
+      // walk through the departments with realistic waiting and service times
+      const [complaint, diagnosis, labCodes, medNames] = pick(COMPLAINTS);
+      const consultant = isAppt || rand() < 0.5 ? doctor : pick(clinicians);
+      const history = [];
+      let t = arrival;
+      const stage = (name, servedBy, wait, service) => {
+        const entered = t;
+        const calledAt = minutes(entered, wait);
+        const leftAt = minutes(calledAt, service);
+        history.push({ stage: name, enteredAt: entered, calledAt, leftAt, servedBy: servedBy._id });
+        t = leftAt;
+        return { entered, calledAt, leftAt };
+      };
+      const triaged = rand() < 0.8;
+      let triage;
+      if (triaged) {
+        const nurse = pick(nurses);
+        const s = stage('triage', nurse, between(3, 18), between(4, 9));
+        triage = { vitals: normalVitals(), flags: [], complaint, recordedBy: nurse._id, recordedAt: s.leftAt };
+      }
+      stage('consultation', consultant, between(8, 35), between(8, 20));
+      const consultId = new mongoose.Types.ObjectId();
+      consults.push({
+        _id: consultId, visitId, patientId: patient._id, clinicianId: consultant._id, clinicianRole: consultant.role,
+        clinicianName: `${consultant.role === 'doctor' ? 'Dr. ' : ''}${consultant.firstName} ${consultant.lastName}`,
+        chiefComplaint: complaint, examination: 'Alert, not in distress. Findings consistent with history.', diagnosis, plan: medNames ? 'Medication as prescribed; review if not improving.' : 'Reassurance and advice.',
+        status: 'final', finalizedAt: t, createdAt: history.at(-1).calledAt, updatedAt: t,
+      });
+      if (labCodes) {
+        const lab = pick(labs);
+        const requestedAt = t;
+        const s = stage('lab', lab, between(5, 20), between(15, 40));
+        const reqTests = tests.filter((x) => labCodes.includes(x.code));
+        labReqs.push({
+          requestNo: `LAB-${year}-${String(++labSeq).padStart(5, '0')}`, visitId, patientId: patient._id, requestedBy: consultant._id,
+          requestedByName: consults.at(-1).clinicianName, status: 'completed', priority: 'routine',
+          tests: reqTests.map((x) => ({ testId: x._id, code: x.code, name: x.name, result: { value: x.code === 'MPS' ? 'P. falciparum seen (+)' : 'Within normal limits', unit: x.unit, refRange: x.refRange, flag: x.code === 'MPS' ? 'high' : 'normal' } })),
+          sampleCollectedAt: minutes(s.calledAt, 3), sampleCollectedBy: lab._id, completedBy: lab._id, completedByName: `${lab.firstName} ${lab.lastName}`,
+          completedAt: s.leftAt, reviewedAt: minutes(s.leftAt, 15), createdAt: requestedAt, updatedAt: s.leftAt,
+        });
+        stage('consultation', consultant, between(3, 12), between(4, 8)); // review results
+      }
+      if (medNames) {
+        const pharm = pick(pharms);
+        const prescribedAt = t;
+        const s = stage('pharmacy', pharm, between(4, 15), between(3, 8));
+        const items = medNames.map((nm) => meds.find((m) => m.name === nm)).filter(Boolean).map((m) => {
+          const qty = between(6, 30);
+          return { medicationId: m._id, name: m.name, strength: m.strength, form: m.form, dose: '1 tablet', frequency: 'TDS (3× daily)', durationDays: 5, quantity: qty, dispensedQty: qty };
+        });
+        rxs.push({
+          rxNo: `RX-${year}-${String(++rxSeq).padStart(5, '0')}`, visitId, patientId: patient._id, status: 'dispensed', items,
+          prescriber: { userId: consultant._id, name: consults.at(-1).clinicianName, role: consultant.role, licenseNo: consultant.staffProfile?.licenseNo },
+          dispensedBy: pharm._id, dispensedByName: `${pharm.firstName} ${pharm.lastName}`, dispensedAt: s.leftAt, createdAt: prescribedAt, updatedAt: s.leftAt,
+        });
+      }
+      visits.push({
+        _id: visitId, visitNo: `V-${year}-${String(++visitSeq).padStart(6, '0')}`, ticketNo: `${prefix}-${String(tickets[prefix]).padStart(3, '0')}`,
+        clinicDate: date, patientId: patient._id, appointmentId: apptId, doctorId: isAppt ? doctor._id : undefined, type: isAppt ? 'appointment' : 'walk_in',
+        stage: 'done', queueStatus: 'completed', isActive: false, priority: 'normal', priorityRank: 2, queueTime: arrival,
+        consultedBy: consultant._id, triage, stageHistory: history, completedAt: t, createdBy: reception._id, createdAt: arrival, updatedAt: t,
+      });
+    }
+    // a couple of missed / cancelled appointments per day (for the no-show rate)
+    for (let k = 0; k < between(1, 3); k++) {
+      const patient = pick(patients);
+      const startAt = clinicDateTimeToUtc(date, minutesToTime(14 * 60 + k * 20));
+      const status = rand() < 0.6 ? 'no_show' : 'cancelled';
+      appts.push({
+        appointmentNo: `APT-${year}-${String(++aptSeq).padStart(5, '0')}`, patientId: patient._id, doctorId: pick(doctors)._id, startAt, endAt: minutes(startAt, 20),
+        reason: pick(REASONS), status, isActive: false, bookedBy: { userId: reception._id, channel: 'reception' },
+        statusHistory: [{ status: 'scheduled', at: minutes(startAt, -2 * 1440), by: reception._id }, { status, at: minutes(startAt, status === 'no_show' ? 60 : -600), by: reception._id, note: status === 'no_show' ? 'Patient did not attend' : 'Cancelled by patient: unable to attend' }],
+        cancellation: status === 'cancelled' ? { at: minutes(startAt, -600), by: reception._id, reason: 'Unable to attend' } : undefined,
+      });
+      missed++;
+    }
+  }
+  // timestamps: false keeps the historical createdAt/updatedAt values instead of "now"
+  await M.Appointment.insertMany(appts);
+  await M.Visit.collection.insertMany(visits.map((v) => JSON.parse(JSON.stringify(v), reviveDates)));
+  await M.Consultation.collection.insertMany(consults.map((c) => JSON.parse(JSON.stringify(c), reviveDates)));
+  if (labReqs.length) await M.LabRequest.collection.insertMany(labReqs.map((l) => JSON.parse(JSON.stringify(l), reviveDates)));
+  if (rxs.length) await M.Prescription.collection.insertMany(rxs.map((r) => JSON.parse(JSON.stringify(r), reviveDates)));
+  await M.Counter.updateOne({ _id: `appointmentNo:${year}` }, { $set: { seq: aptSeq } });
+  await M.Counter.create([{ _id: `visitNo:${year}`, seq: visitSeq }, { _id: `labRequestNo:${year}`, seq: labSeq }, { _id: `rxNo:${year}`, seq: rxSeq }]);
+  return { visits: visits.length, labs: labReqs.length, rx: rxs.length, missed };
+}
+
+// Raw driver inserts bypass Mongoose casting, so restore ObjectIds and Dates after the JSON round trip.
+const OID = /^[a-f0-9]{24}$/;
+const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+function reviveDates(key, value) {
+  if (typeof value !== 'string') return value;
+  if (ISO.test(value)) return new Date(value);
+  if (OID.test(value) && key !== 'clinicDate') return new mongoose.Types.ObjectId(value);
+  return value;
+}
+
+/** A few walk-ins already waiting today, so the queues and the display look alive at the start of a demo. */
+async function seedLiveQueue({ staff, patients, today }) {
+  const year = today.slice(0, 4);
+  const nurse = staff.find((u) => u.role === 'nurse');
+  const reception = staff.find((u) => u.role === 'receptionist');
+  const chosen = patients.slice(-5); // last registered patients, avoids today's appointment holders where possible
+  const now = Date.now();
+  let visitSeq = (await M.Counter.findById(`visitNo:${year}`))?.seq || 0;
+  const docs = chosen.map((p, i) => {
+    const atConsult = i >= 3;
+    const queueTime = new Date(now - (25 - i * 4) * 60000);
+    const history = atConsult
+      ? [{ stage: 'triage', enteredAt: queueTime, calledAt: minutes(queueTime, 6), leftAt: minutes(queueTime, 12), servedBy: nurse._id }, { stage: 'consultation', enteredAt: minutes(queueTime, 12) }]
+      : [{ stage: 'triage', enteredAt: queueTime }];
+    return {
+      visitNo: `V-${year}-${String(++visitSeq).padStart(6, '0')}`, ticketNo: `W-${String(i + 1).padStart(3, '0')}`, clinicDate: today, patientId: p._id, type: 'walk_in',
+      stage: atConsult ? 'consultation' : 'triage', queueStatus: 'waiting', isActive: true, priority: i === 1 ? 'urgent' : 'normal', priorityRank: i === 1 ? 1 : 2,
+      queueTime, assignedTo: null, stageHistory: history, createdBy: reception._id,
+      triage: atConsult ? { vitals: normalVitals(), flags: [], complaint: pick(COMPLAINTS)[0], recordedBy: nurse._id, recordedAt: minutes(queueTime, 12) } : undefined,
+    };
+  });
+  await M.Visit.insertMany(docs);
+  await M.Counter.updateOne({ _id: `visitNo:${year}` }, { $set: { seq: visitSeq } }, { upsert: true });
+  await M.Counter.create({ _id: `ticket:${today}:W`, seq: docs.length });
+  return docs.length;
 }
 
 if (process.argv[1].endsWith('seed.js')) {
   await connectDB();
   console.log(`Seeding database "${mongoose.connection.name}" with synthetic data…`);
-  await seed();
+  await seed({ withLiveQueue: true });
   await disconnectDB();
   console.log(`Done. All demo accounts use the password: ${DEMO_PASSWORD}`);
 }

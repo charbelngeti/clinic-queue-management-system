@@ -164,6 +164,17 @@ async function route() {
   }
 }
 
+/* ---------------- unread messages badge (FR-MSG-03) ---------------- */
+export async function refreshUnread() {
+  if (!state.user || state.user.role === 'admin' || state.user.mustChangePassword) return;
+  try {
+    const { unread } = await api.get('/messages/unread');
+    setNavBadge('/messages', unread);
+  } catch {
+    /* ignore: badge is best-effort */
+  }
+}
+
 /* ---------------- boot ---------------- */
 async function boot() {
   try {
@@ -180,6 +191,8 @@ async function boot() {
   window.addEventListener('hashchange', route);
   if (!location.hash || location.hash === '#/') history.replaceState(null, '', `#${home()}`);
   await route();
+  refreshUnread();
+  setInterval(refreshUnread, 20000);
 }
 
 /** Called by pages that change the signed-in user (e.g. after a password change). */

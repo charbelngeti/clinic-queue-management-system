@@ -7,6 +7,7 @@ import * as usersCtl from '../controllers/users.controller.js';
 import * as fd from '../controllers/frontdesk.controller.js';
 import * as q from '../controllers/queue.controller.js';
 import * as cl from '../controllers/clinical.controller.js';
+import * as ins from '../controllers/insight.controller.js';
 
 const router = Router();
 
@@ -99,5 +100,18 @@ router.get('/medications', authorize('medications:read'), cl.listMedications);
 router.post('/medications', authorize('medications:manage'), cl.createMedication);
 router.patch('/medications/:id', authorize('medications:manage'), cl.updateMedication);
 router.post('/medications/:id/receive', authorize('medications:stock'), cl.receiveStock);
+
+/* messaging (reception is the hub) */
+router.get('/messages', authorize('messages:use'), ins.listConversations);
+router.get('/messages/unread', authorize('messages:use'), ins.unread);
+router.get('/messages/recipients', authorize('messages:use'), authorize('patients:write'), ins.recipients);
+router.post('/messages', authorize('messages:use'), ins.startConversation);
+router.get('/messages/:id', authorize('messages:use'), ins.getThread);
+router.post('/messages/:id/reply', authorize('messages:use'), ins.replyThread);
+
+/* reports, stats & audit */
+router.get('/reports/summary', authorize('reports:read'), ins.summary);
+router.get('/queue/:stage/stats', ins.stageStats);
+router.get('/audit', authorize('audit:read'), ins.audit);
 
 export default router;
