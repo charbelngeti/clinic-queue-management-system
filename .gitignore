@@ -156,5 +156,6 @@ tools/
 
 # Internal group documents: Explainer and Presentation Guide (kept local, not pushed)
 docs/internal/
+docs/group/
 docs/**/Project-Explainer*.docx
 docs/**/Presentation-Guide*.docx
