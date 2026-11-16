@@ -47,6 +47,8 @@
 
 ## Workstream B: Academic Deliverables
 ### Completed
+- **PowerPoint:** `docs/presentation/CareQueue-Presentation.pptx`, 27 slides with icons, native charts (live report data), diagrams, screenshots and speaker notes; regenerate with `npm run docs:slides`. Fill in course name/code and lecturer on slide 1.
+- **Word report:** `docs/report/CareQueue-Project-Report.docx`, 32 pages (main body pp. 4–18, then appendices A–E); regenerate with `npm run docs:report` (then update the table of contents in Word: right-click → Update field). Fill in course name/code and lecturer on the title page.
 - UML diagrams (PlantUML sources in `docs/diagrams/`, PNGs in `docs/diagrams/rendered/`, `npm run diagrams`): use-case; 5 sequence diagrams (registration & booking, check-in & queue, triage, consultation & lab, prescription & dispensing); 2 communication diagrams (call next, dispense); state machines (visit, appointment, lab request); data model; architecture
 - 18 application screenshots in `docs/screenshots/`
 - Blueprint v0.3 (`docs/BLUEPRINT.md`)
@@ -55,10 +57,9 @@
 ### Outstanding
 - CASE tools evidence (screenshots: Atlas/Compass collections and indexes, GitHub history, test output)
 - Code snippet & error analysis write-up
-- Word report
 - PowerPoint (after outline approval and once screenshots exist)
 
 ## Next priorities
-1. Increment 5: full multi-role walkthrough, edge-case fixes, accessibility/responsive check.
-2. PlantUML diagrams drawn from the implemented code (use-case, sequence, communication, state, data model, architecture).
-3. Screenshots → PowerPoint; Word report (~15 pages).
+1. Group review of the slides and report; fill in course details.
+2. Rehearse the live demo (see slide 25 notes), record a backup video.
+3. Check the patient portal on a real phone.

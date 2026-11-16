@@ -1,8 +1,8 @@
 # Presentation Outline — Clinic Queue & Appointment Management System
 
-**Status:** DRAFT v0.1 (outline only). The PowerPoint will be generated after approval.
+**Status:** APPROVED (16 Nov 2026). Presenter names are not shown on the slides; presenters move at their own pace (no per-slide timings).
 **Format:** PowerPoint (.pptx), 16:9.
-**Time limit (confirmed):** ~30 min talk + 10 min live demo + up to 20 min questions.
+**Time limit:** ~30 min talk + 10 min live demo + up to 20 min questions.
 
 **Tags used on slides:**
 - **[NOW]** content can be written today from the approved design.
@@ -34,12 +34,12 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 
 ## SECTION A — Introduction
 
-### Slide 1 — Title  ·  Charbel Ngeti  ·  0:45  ·  [NOW]
+### Slide 1 — Title  ·  [NOW]
 - **Content:** "Clinic Queue & Appointment Management System". Course name & code, lecturer, date (20 Nov 2026), group member names + admission numbers.
 - **Visuals:** Clean title layout, app logo/icon, members in a 2×5 grid.
 - **Speaker notes:** "Good morning. We are presenting our Clinic Queue and Appointment Management System, a web application that coordinates a patient's journey from reception through nursing, consultation, laboratory and pharmacy. I'll briefly introduce the team, and each member will present one part of the project."
 
-### Slide 2 — Introduction & Background  ·  Adelight Naino  ·  1:00  ·  [NOW]
+### Slide 2 — Introduction & Background  ·  [NOW]
 - **Content:**
   - Outpatient clinics serve walk-ins and booked patients every day.
   - A single visit passes through up to 5 departments.
@@ -47,7 +47,7 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 - **Visuals:** Simple icon strip: Reception → Nurse → Doctor → Lab → Pharmacy.
 - **Speaker notes:** "A typical outpatient visit is not one interaction but a chain of them. Each hand-off between departments is a point where patients wait and where information gets lost. Our system targets those hand-offs."
 
-### Slide 3 — Problem Statement  ·  Adelight Naino  ·  1:15  ·  [NOW]
+### Slide 3 — Problem Statement  ·  [NOW]
 - **Content:** Six problems, one icon each:
   1. Long waiting times
   2. Poor appointment scheduling and double-booking
@@ -58,7 +58,7 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 - **Visuals:** 2×3 icon grid.
 - **Speaker notes:** Walk through each problem with a short real-life example, e.g. "a patient sent to the lab returns and has to queue again from the start." End with: "These problems are about coordination and information, which is exactly what an information system solves."
 
-### Slide 4 — Project Objectives  ·  Abigael Wambui  ·  1:00  ·  [NOW]
+### Slide 4 — Project Objectives  ·  [NOW]
 - **Content:**
   - **Main objective:** develop a web-based system that manages patients, appointments and queues across clinic departments.
   - **Specific objectives:**
@@ -71,7 +71,7 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 - **Visuals:** Target icon. Checklist layout.
 - **Speaker notes:** "Each specific objective maps to a module that you will see in the demo." (Keep this true: remove any objective whose module is not finished.)
 
-### Slide 5 — Proposed Solution  ·  Abigael Wambui  ·  1:30  ·  [NOW]
+### Slide 5 — Proposed Solution  ·  [NOW]
 - **Content:**
   - One shared system for all departments.
   - Each patient visit carries a ticket number (e.g. A-014) through every stage.
@@ -84,7 +84,7 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 
 ## SECTION B — Methodology (Guideline 1)
 
-### Slide 6 — Methodology: Incremental Model  ·  Nathaniel Lado  ·  1:15  ·  [NOW]
+### Slide 6 — Methodology: Incremental Model  ·  [NOW]
 - **Content:**
   - **What:** the system is built and delivered in small, fully tested increments.
   - **Stages:** Requirements & architecture → [Design → Build → Integrate → Test] × increments → System test → Delivery.
@@ -92,7 +92,7 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 - **Visuals:** Increment "staircase" diagram, each step labelled with its modules.
 - **Speaker notes:** "Requirements and architecture were agreed once at the start. Then each increment went through its own mini-cycle and was added to the working system. After every increment we had something that ran and could be demonstrated."
 
-### Slide 7 — Why Incremental? Justification  ·  Nathaniel Lado  ·  1:30  ·  [NOW]
+### Slide 7 — Why Incremental? Justification  ·  [NOW]
 - **Content:**
   - **Why it fits:** short deadline; the clinic workflow is a natural dependency chain; requirements were stable.
   - **Advantages:** working software early, risk handled early, easy progress tracking.
@@ -105,7 +105,7 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 
 ## SECTION C — Requirements (Guideline 2)
 
-### Slide 8 — Functional Requirements  ·  Alvin Otanga  ·  1:30  ·  [NOW]
+### Slide 8 — Functional Requirements  ·  [NOW]
 - **Content:** Table of modules with requirement counts and one key example each:
   - Authentication & RBAC
   - Users
@@ -125,7 +125,7 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
   - FR-PHA-04: no over-dispensing
 - **Speaker notes:** Explain the ID scheme and the MoSCoW priority. Mention that the full specification is in the report.
 
-### Slide 9 — Non-Functional Requirements  ·  Alvin Otanga  ·  1:00  ·  [NOW]
+### Slide 9 — Non-Functional Requirements  ·  [NOW]
 - **Content:** Six categories with one line each:
   - **Security:** hashed passwords, server-side RBAC
   - **Privacy:** role-based field visibility
@@ -136,7 +136,7 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 - **Visuals:** Six icon cards.
 - **Speaker notes:** For each, say *how* it is satisfied, not just what it is.
 
-### Slide 10 — Domain Requirements  ·  Alvin Otanga  ·  1:15  ·  [NOW]
+### Slide 10 — Domain Requirements  ·  [NOW]
 - **Content:**
   - Confidentiality under the **Kenya Data Protection Act, 2019**: health data is sensitive personal data.
   - Unique patient identification.
@@ -152,14 +152,14 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 
 ## SECTION D — Design
 
-### Slide 11 — System Architecture  ·  Ajani M'maitsi  ·  1:15  ·  [NOW]
+### Slide 11 — System Architecture  ·  [NOW]
 - **Content:**
   - **Three tiers:** Browser (HTML, Tailwind, JavaScript) → Node.js/Express REST API (routes → controllers → services → models) → MongoDB.
   - **Request pipeline:** authentication → role authorisation → validation.
 - **Visuals:** Architecture diagram (`docs/diagrams/architecture`).
 - **Speaker notes:** Explain why business rules live in the service layer. Explain polling vs WebSockets: simpler, adequate for clinic volumes.
 
-### Slide 12 — Database Design (MongoDB)  ·  Ajani M'maitsi  ·  1:30  ·  [NOW]
+### Slide 12 — Database Design (MongoDB)  ·  [NOW]
 - **Content:**
   - **Collections:** users, patients, appointments, visits, consultations, labRequests, prescriptions, medications, labTests, messages, counters, auditLogs.
   - **Embedded:** vitals, stage history, lab test results, prescription items.
@@ -167,7 +167,7 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 - **Visuals:** Two-column "Embed vs Reference" table with the reason for each.
 - **Speaker notes:** "We did not copy a relational design into MongoDB. The visit document is the unit of work: moving a patient between departments is one atomic update to one document."
 
-### Slide 13 — ER / Data Model Diagram & Integrity  ·  Ajani M'maitsi  ·  1:30  ·  [NOW, finalised after build]
+### Slide 13 — ER / Data Model Diagram & Integrity  ·  [NOW, finalised after build]
 - **Content:**
   - Data model diagram (collections, embedded parts, references with cardinalities).
   - **Integrity callouts:**
@@ -180,19 +180,19 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 
 ## SECTION E — UML Modelling (Guideline 3)
 
-### Slide 14 — Use-Case Diagram  ·  Nathaniel Lado  ·  1:30  ·  [NOW, verified after build]
+### Slide 14 — Use-Case Diagram  ·  [NOW, verified after build]
 - **Content:** Actors (stick figures): Admin, Receptionist, Patient, Nurse, Clinician, Doctor, Lab Technician, Pharmacist. Use cases (ovals) inside the system boundary.
 - **Visuals:** Full use-case diagram. If it's too dense, show one overview diagram and a zoomed-in version for clinical roles.
 - **Speaker notes:**
   - Explain generalisation: Doctor inherits all Clinician use cases and adds booked appointments and unrestricted prescribing.
   - Explain `<<include>>` using "Call next patient".
 
-### Slide 15 — Sequence Diagram: Lab Request Round Trip  ·  Evans Kima  ·  1:30  ·  [BUILD]
+### Slide 15 — Sequence Diagram: Lab Request Round Trip  ·  [BUILD]
 - **Content:** Clinician → UI → API → LabService → MongoDB → Lab Tech → results → patient returns to the same clinician's queue.
 - **Visuals:** Sequence diagram. Highlight the transaction block.
 - **Speaker notes:** Read the diagram top-to-bottom: time flows downward and each arrow is a message. Point out the transaction fragment. Mention that the other sequence diagrams are in the report.
 
-### Slide 16 — Interaction (Communication) Diagram  ·  Evans Kima  ·  1:15  ·  [BUILD]
+### Slide 16 — Interaction (Communication) Diagram  ·  [BUILD]
 - **Content and visuals:** Confirmed: interaction diagrams = UML diagrams of message flow between objects. We show a **communication diagram** for "Call next patient": objects linked with numbered messages.
 - **Speaker notes:** "A communication diagram shows the same interaction as a sequence diagram, but focuses on *which objects are linked* rather than on timing."
 
@@ -200,7 +200,7 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 
 ## SECTION F — Tools & Implementation
 
-### Slide 17 — CASE Tools (Guideline 4)  ·  Evans Kima  ·  1:30  ·  [BUILD: only tools actually used]
+### Slide 17 — CASE Tools (Guideline 4)  ·  [BUILD: only tools actually used]
 - **Content:** Table of tools by purpose:
 
 | Category | Tools |
@@ -215,17 +215,17 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 - **Visuals:** Tool logos + one evidence screenshot (e.g. GitHub commit graph or Compass index view).
 - **Speaker notes:** For each tool, give what it is, what we used it for, and the evidence. Be ready to open the evidence if asked.
 
-### Slide 18 — Implemented Modules  ·  Faith Wanjira  ·  1:00  ·  [BUILD]
+### Slide 18 — Implemented Modules  ·  [BUILD]
 - **Content:** Module checklist showing **actual** status on presentation day (✅ implemented / ⏳ partial / ✗ future work).
 - **Visuals:** Checklist grid.
 - **Speaker notes:** Be honest about anything partial. Lecturers reward accuracy.
 
-### Slide 19 — Screenshots: Front Desk  ·  Faith Wanjira  ·  1:00  ·  [BUILD]
+### Slide 19 — Screenshots: Front Desk  ·  [BUILD]
 - **Content:** Reception dashboard, booking with the slot picker, queue board, "Who's Next" display.
 - **Visuals:** 2×2 screenshot grid with captions.
 - **Speaker notes:** One sentence per screenshot on what the user does there.
 
-### Slide 20 — Screenshots: Clinical Departments  ·  Faith Wanjira  ·  1:15  ·  [BUILD]
+### Slide 20 — Screenshots: Clinical Departments  ·  [BUILD]
 - **Content:** Nurse vitals form (with abnormal flag), consultation screen, lab results entry, pharmacy dispensing, patient portal.
 - **Visuals:** Screenshot collage.
 - **Speaker notes:** Emphasise role-specific interfaces: each role sees only its own tools.
@@ -234,7 +234,7 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 
 ## SECTION G — Code & Errors (Guideline 5)
 
-### Slide 21 — Code Snippet: "Call Next Patient"  ·  Matthew Mwachi  ·  1:45  ·  [BUILD]
+### Slide 21 — Code Snippet: "Call Next Patient"  ·  [BUILD]
 - **Content:**
   - ~20 lines of the actual queue service: an atomic `findOneAndUpdate` filtered on stage + waiting, sorted by priority then queue time, setting status to "called".
   - Module: Queue Management.
@@ -246,7 +246,7 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
   - "If two doctors click *Call next* at the same moment, MongoDB applies the update to one document atomically. The second doctor gets the next patient, never the same one."
   - "Priority sorting implements triage."
 
-### Slide 22 — Possible Errors  ·  Matthew Mwachi  ·  1:45  ·  [NOW, examples verified after build]
+### Slide 22 — Possible Errors  ·  [NOW, examples verified after build]
 - **Content:** Table of error types, one example each, and how each is prevented:
 
 | Type | Example from our system | Prevention |
@@ -266,14 +266,14 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 
 ## SECTION H — Testing, Demo, Close
 
-### Slide 23 — Testing & Results  ·  Faith Wanjira  ·  1:15  ·  [BUILD]
+### Slide 23 — Testing & Results  ·  [BUILD]
 - **Content:**
   - Test levels: unit, API (automated), manual end-to-end across roles.
   - **Actual** results: tests passed / total. Key cases include double-booking → rejected, wrong role → 403, over-dispensing → rejected.
 - **Visuals:** Screenshot of the test-runner output + small results table.
 - **Speaker notes:** Report real numbers only. Mention any known issues.
 
-### Slide 24 — Conclusion & Recommendations  ·  Matthew Mwachi  ·  1:15  ·  [BUILD]
+### Slide 24 — Conclusion & Recommendations  ·  [BUILD]
 - **Content:**
   - **Achieved:** objectives vs outcome.
   - **Limitations:** single clinic, in-app messages only, no billing.
@@ -281,7 +281,7 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
 - **Visuals:** Two columns: Achieved / Future.
 - **Speaker notes:** Tie each achievement back to a problem from slide 3.
 
-### Slide 25 — Live Demonstration  ·  Charbel Ngeti  ·  ~10:00  ·  [BUILD]
+### Slide 25 — Live Demonstration  ·  [BUILD]
 - **Content:** Demo script on the slide:
   1. Reception checks in a booked patient → ticket shown on "Who's Next".
   2. Nurse calls the patient and records vitals.
@@ -295,10 +295,10 @@ The demo is assigned to Charbel as the repository owner. Swap it to whoever is m
   - Rehearse at least twice with freshly seeded data.
   - Have a recorded backup video in case of network or database failure.
 
-### Slide 26 — Thank You  ·  —  ·  [NOW]
+### Slide 26 — Thank You  ·  [NOW]
 - **Content:** Thank you, repository link.
 
-### Slide 27 — Questions & Answers  ·  Charbel Ngeti (moderator)  ·  [NOW]
+### Slide 27 — Questions & Answers  ·  [NOW]
 - **Content:** "Questions?"
 - **Speaker notes:** The moderator routes each question to the section owner (see below).
 

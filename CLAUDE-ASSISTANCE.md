@@ -80,3 +80,11 @@ This is a short log of the work done with the help of Claude Code (an AI coding 
   - the TV display highlight fading the text
   - a misleading dashboard label
 - Could not check the phone-width layout because the browser window would not resize.
+
+**Session 7: Presentation and report**
+- Committed and pushed Session 6 (`bd342b0`). Removed presenter names and timings from the slide outline, as the group requested.
+- Generated the PowerPoint (27 slides) with `pptxgenjs`. It includes coloured icon cards, native charts built from the Reports module (synthetic data), the UML diagrams, screenshots and speaker notes. Every slide was rendered through PowerPoint and checked visually; fixed text clipped in the chevrons, a crowded code box and overlapping labels.
+- Generated the Word report (32 pages: body about 15, plus appendices) with `docx`:
+  - Requirement tables are read from BLUEPRINT.md, with an honest implementation status for each.
+  - The code snippet is taken from the real source file.
+  - Word updated the table of contents; the layout was checked as a PDF.

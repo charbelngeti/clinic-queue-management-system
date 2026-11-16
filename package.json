@@ -14,7 +14,9 @@
     "db:init": "node --env-file=.env scripts/init-db.js",
     "seed": "node --env-file=.env scripts/seed.js",
     "test": "node --env-file-if-exists=.env --test --test-concurrency=1 tests/*.test.js",
-    "diagrams": "java -jar tools/plantuml/plantuml.jar -tpng -o rendered docs/diagrams/*.puml"
+    "diagrams": "java -jar tools/plantuml/plantuml.jar -tpng -o rendered docs/diagrams/*.puml",
+    "docs:slides": "node --env-file=.env scripts/docs/build-slides.mjs",
+    "docs:report": "node scripts/docs/build-report.mjs"
   },
   "repository": {
     "type": "git",
